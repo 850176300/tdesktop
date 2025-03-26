@@ -1,99 +1,99 @@
-[submodule "Telegram/ThirdParty/libtgvoip"]
-	path = Telegram/ThirdParty/libtgvoip
+[submodule "Toome/ThirdParty/libtgvoip"]
+	path = Toome/ThirdParty/libtgvoip
 	url = https://github.com/telegramdesktop/libtgvoip
-[submodule "Telegram/ThirdParty/GSL"]
-	path = Telegram/ThirdParty/GSL
+[submodule "Toome/ThirdParty/GSL"]
+	path = Toome/ThirdParty/GSL
 	url = https://github.com/Microsoft/GSL.git
-[submodule "Telegram/ThirdParty/xxHash"]
-	path = Telegram/ThirdParty/xxHash
+[submodule "Toome/ThirdParty/xxHash"]
+	path = Toome/ThirdParty/xxHash
 	url = https://github.com/Cyan4973/xxHash.git
-[submodule "Telegram/ThirdParty/rlottie"]
-	path = Telegram/ThirdParty/rlottie
+[submodule "Toome/ThirdParty/rlottie"]
+	path = Toome/ThirdParty/rlottie
 	url = https://github.com/desktop-app/rlottie.git
-[submodule "Telegram/ThirdParty/lz4"]
-	path = Telegram/ThirdParty/lz4
+[submodule "Toome/ThirdParty/lz4"]
+	path = Toome/ThirdParty/lz4
 	url = https://github.com/lz4/lz4.git
-[submodule "Telegram/lib_crl"]
-	path = Telegram/lib_crl
+[submodule "Toome/lib_crl"]
+	path = Toome/lib_crl
 	url = https://github.com/desktop-app/lib_crl.git
-[submodule "Telegram/lib_rpl"]
-	path = Telegram/lib_rpl
+[submodule "Toome/lib_rpl"]
+	path = Toome/lib_rpl
 	url = https://github.com/desktop-app/lib_rpl.git
-[submodule "Telegram/lib_base"]
-	path = Telegram/lib_base
+[submodule "Toome/lib_base"]
+	path = Toome/lib_base
 	url = https://github.com/desktop-app/lib_base.git
-[submodule "Telegram/codegen"]
-	path = Telegram/codegen
+[submodule "Toome/codegen"]
+	path = Toome/codegen
 	url = https://github.com/desktop-app/codegen.git
-[submodule "Telegram/lib_ui"]
-	path = Telegram/lib_ui
+[submodule "Toome/lib_ui"]
+	path = Toome/lib_ui
 	url = https://github.com/desktop-app/lib_ui.git
-[submodule "Telegram/lib_lottie"]
-	path = Telegram/lib_lottie
+[submodule "Toome/lib_lottie"]
+	path = Toome/lib_lottie
 	url = https://github.com/desktop-app/lib_lottie.git
-[submodule "Telegram/lib_tl"]
-	path = Telegram/lib_tl
+[submodule "Toome/lib_tl"]
+	path = Toome/lib_tl
 	url = https://github.com/desktop-app/lib_tl.git
-[submodule "Telegram/lib_spellcheck"]
-	path = Telegram/lib_spellcheck
+[submodule "Toome/lib_spellcheck"]
+	path = Toome/lib_spellcheck
 	url = https://github.com/desktop-app/lib_spellcheck
-[submodule "Telegram/lib_storage"]
-	path = Telegram/lib_storage
+[submodule "Toome/lib_storage"]
+	path = Toome/lib_storage
 	url = https://github.com/desktop-app/lib_storage.git
 [submodule "cmake"]
 	path = cmake
 	url=https://github.com/850176300/cmake_helpers.git
-[submodule "Telegram/ThirdParty/expected"]
-	path = Telegram/ThirdParty/expected
+[submodule "Toome/ThirdParty/expected"]
+	path = Toome/ThirdParty/expected
 	url = https://github.com/TartanLlama/expected
-[submodule "Telegram/ThirdParty/QR"]
-	path = Telegram/ThirdParty/QR
+[submodule "Toome/ThirdParty/QR"]
+	path = Toome/ThirdParty/QR
 	url = https://github.com/nayuki/QR-Code-generator
-[submodule "Telegram/lib_qr"]
-	path = Telegram/lib_qr
+[submodule "Toome/lib_qr"]
+	path = Toome/lib_qr
 	url = https://github.com/desktop-app/lib_qr.git
-[submodule "Telegram/ThirdParty/hunspell"]
-	path = Telegram/ThirdParty/hunspell
+[submodule "Toome/ThirdParty/hunspell"]
+	path = Toome/ThirdParty/hunspell
 	url = https://github.com/hunspell/hunspell
-[submodule "Telegram/ThirdParty/range-v3"]
-	path = Telegram/ThirdParty/range-v3
+[submodule "Toome/ThirdParty/range-v3"]
+	path = Toome/ThirdParty/range-v3
 	url = https://github.com/ericniebler/range-v3.git
-[submodule "Telegram/ThirdParty/nimf"]
-	path = Telegram/ThirdParty/nimf
+[submodule "Toome/ThirdParty/nimf"]
+	path = Toome/ThirdParty/nimf
 	url = https://github.com/hamonikr/nimf.git
-[submodule "Telegram/ThirdParty/hime"]
-	path = Telegram/ThirdParty/hime
+[submodule "Toome/ThirdParty/hime"]
+	path = Toome/ThirdParty/hime
 	url = https://github.com/hime-ime/hime.git
-[submodule "Telegram/ThirdParty/fcitx5-qt"]
-	path = Telegram/ThirdParty/fcitx5-qt
+[submodule "Toome/ThirdParty/fcitx5-qt"]
+	path = Toome/ThirdParty/fcitx5-qt
 	url = https://github.com/fcitx/fcitx5-qt.git
-[submodule "Telegram/lib_webrtc"]
-	path = Telegram/lib_webrtc
+[submodule "Toome/lib_webrtc"]
+	path = Toome/lib_webrtc
 	url = https://github.com/desktop-app/lib_webrtc.git
-[submodule "Telegram/ThirdParty/tgcalls"]
-	path = Telegram/ThirdParty/tgcalls
+[submodule "Toome/ThirdParty/tgcalls"]
+	path = Toome/ThirdParty/tgcalls
 	url = https://github.com/TelegramMessenger/tgcalls.git
-[submodule "Telegram/lib_webview"]
-	path = Telegram/lib_webview
+[submodule "Toome/lib_webview"]
+	path = Toome/lib_webview
 	url = https://github.com/desktop-app/lib_webview.git
-[submodule "Telegram/ThirdParty/jemalloc"]
-	path = Telegram/ThirdParty/jemalloc
+[submodule "Toome/ThirdParty/jemalloc"]
+	path = Toome/ThirdParty/jemalloc
 	url = https://github.com/jemalloc/jemalloc
-[submodule "Telegram/ThirdParty/dispatch"]
-	path = Telegram/ThirdParty/dispatch
+[submodule "Toome/ThirdParty/dispatch"]
+	path = Toome/ThirdParty/dispatch
 	url = https://github.com/apple/swift-corelibs-libdispatch
-[submodule "Telegram/ThirdParty/kimageformats"]
-	path = Telegram/ThirdParty/kimageformats
+[submodule "Toome/ThirdParty/kimageformats"]
+	path = Toome/ThirdParty/kimageformats
 	url = https://github.com/KDE/kimageformats.git
-[submodule "Telegram/ThirdParty/kcoreaddons"]
-	path = Telegram/ThirdParty/kcoreaddons
+[submodule "Toome/ThirdParty/kcoreaddons"]
+	path = Toome/ThirdParty/kcoreaddons
 	url = https://github.com/KDE/kcoreaddons.git
-[submodule "Telegram/ThirdParty/cld3"]
-	path = Telegram/ThirdParty/cld3
+[submodule "Toome/ThirdParty/cld3"]
+	path = Toome/ThirdParty/cld3
 	url = https://github.com/google/cld3.git
-[submodule "Telegram/ThirdParty/libprisma"]
-	path = Telegram/ThirdParty/libprisma
+[submodule "Toome/ThirdParty/libprisma"]
+	path = Toome/ThirdParty/libprisma
 	url = https://github.com/desktop-app/libprisma.git
-[submodule "Telegram/ThirdParty/xdg-desktop-portal"]
-	path = Telegram/ThirdParty/xdg-desktop-portal
+[submodule "Toome/ThirdParty/xdg-desktop-portal"]
+	path = Toome/ThirdParty/xdg-desktop-portal
 	url = https://github.com/flatpak/xdg-desktop-portal.git
