@@ -1,3 +1,6 @@
+[submodule "cmake"]
+	path = cmake
+	url=https://github.com/850176300/cmake_helpers.git
 [submodule "Toome/ThirdParty/libtgvoip"]
 	path = Toome/ThirdParty/libtgvoip
 	url = https://github.com/telegramdesktop/libtgvoip
@@ -55,9 +58,6 @@
 [submodule "Toome/ThirdParty/hunspell"]
 	path = Toome/ThirdParty/hunspell
 	url = https://github.com/hunspell/hunspell
-[submodule "Toome/ThirdParty/range-v3"]
-	path = Toome/ThirdParty/range-v3
-	url = https://github.com/ericniebler/range-v3.git
 [submodule "Toome/ThirdParty/nimf"]
 	path = Toome/ThirdParty/nimf
 	url = https://github.com/hamonikr/nimf.git
@@ -97,3 +97,6 @@
 [submodule "Toome/ThirdParty/xdg-desktop-portal"]
 	path = Toome/ThirdParty/xdg-desktop-portal
 	url = https://github.com/flatpak/xdg-desktop-portal.git
+[submodule "Toome/ThirdParty/range-v3"]
+	path = Toome/ThirdParty/range-v3
+	url = https://github.com/ericniebler/range-v3
