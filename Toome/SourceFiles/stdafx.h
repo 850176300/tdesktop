@@ -119,9 +119,6 @@ https://github.com/telegramdesktop/tdesktop/blob/master/LEGAL
 #include "base/variant.h"
 #include "base/weak_ptr.h"
 
-#include "scheme.h"
-#include "mtproto/type_utils.h"
-
 #include "ui/image/image_location.h"
 #include "ui/style/style_core.h"
 #include "ui/text/text.h"
