@@ -10,10 +10,9 @@ arg3="$3"
 
 if [ ! -d "$FullScriptPath/../../../DesktopPrivate" ]; then
   echo ""
-  echo "This script is for building the production version of Telegram Desktop."
+  echo "This script is for building the production version of Toome Desktop."
   echo ""
   echo "For building custom versions please visit the build instructions page at:"
-  echo "https://github.com/telegramdesktop/tdesktop/#build-instructions"
   exit
 fi
 

@@ -1,8 +1,8 @@
-# This file is part of Telegram Desktop,
-# the official desktop application for the Telegram messaging service.
+# This file is part of Toome Desktop,
+# the official desktop application for the Toome messaging service.
 #
 # For license and copyright information please follow this link:
-# https://github.com/telegramdesktop/tdesktop/blob/master/LEGAL
+
 
 function(generate_scheme target_name script scheme_files)
     find_package(Python3 REQUIRED)

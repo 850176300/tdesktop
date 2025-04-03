@@ -1,8 +1,8 @@
-# This file is part of Telegram Desktop,
-# the official desktop application for the Telegram messaging service.
+# This file is part of Toome Desktop,
+# the official desktop application for the Toome messaging service.
 #
 # For license and copyright information please follow this link:
-# https://github.com/telegramdesktop/tdesktop/blob/master/LEGAL
+
 
 add_library(lib_tgcalls STATIC)
 init_target(lib_tgcalls) # Can't use std::optional::value on macOS.

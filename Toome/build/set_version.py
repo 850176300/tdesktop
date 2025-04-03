@@ -1,9 +1,8 @@
 '''
-This file is part of Telegram Desktop,
-the official desktop application for the Telegram messaging service.
+This file is part of Toome Desktop,
+the official desktop application for the Toome messaging service.
 
 For license and copyright information please follow this link:
-https://github.com/telegramdesktop/tdesktop/blob/master/LEGAL
 '''
 import sys, os, re, subprocess, io
 
@@ -141,8 +140,8 @@ rcReplaces = [
   [ r'("ProductVersion",\s+)"\d+\.\d+\.\d+\.\d+"', r'\g<1>"' + withdot + '"' ],
 ]
 
-print('Patching Telegram.rc...')
-replaceInFile(scriptPath + '/../Resources/winrc/Telegram.rc', rcReplaces)
+print('Patching Toome.rc...')
+replaceInFile(scriptPath + '/../Resources/winrc/Toome.rc', rcReplaces)
 
 print('Patching Updater.rc...')
 replaceInFile(scriptPath + '/../Resources/winrc/Updater.rc', rcReplaces)

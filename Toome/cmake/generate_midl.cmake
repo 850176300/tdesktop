@@ -1,8 +1,8 @@
-# This file is part of Telegram Desktop,
-# the official desktop application for the Telegram messaging service.
+# This file is part of Toome Desktop,
+# the official desktop application for the Toome messaging service.
 #
 # For license and copyright information please follow this link:
-# https://github.com/telegramdesktop/tdesktop/blob/master/LEGAL
+
 
 function(generate_midl target_name src_loc)
     set(gen_dst ${CMAKE_CURRENT_BINARY_DIR}/gen)
