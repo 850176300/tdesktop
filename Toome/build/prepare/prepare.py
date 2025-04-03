@@ -1960,6 +1960,16 @@ win:
 stage('libnim', """
 win:
     git clone --recursive -b 10.8.10_%WIN32X64%  https://github.com/850176300/nim_sdk.git
+    cd nim_sdk/wrapper
+    mkdir build_Debug
+    cd build_Debug
+    cmake .. ^
+        -A %WIN32X64% ^
+        -D CMAKE_MSVC_RUNTIME_LIBRARY="MultiThreaded$<$<CONFIG:Debug>:Debug>DLL" ^
+        -D CMAKE_C_FLAGS_DEBUG="/MDd /Zi /Ob0 /Od /RTC1" ^
+        -D CMAKE_C_FLAGS_RELEASE="/MD /O2 /Ob2 /DNDEBUG"
+    cmake --build . --config Debug --parallel --target install
+    cmake --build . --config Release --parallel --target install
 """)
 
 if win:
