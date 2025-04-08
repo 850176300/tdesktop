@@ -95,7 +95,8 @@ PRIVATE
     desktop-app::external_openal
     desktop-app::external_xxhash
     desktop-app::external_nim_sdk
-    desktop-app::nim_sdk_wrapper
+    desktop-app::external_nim_wrapper_util
+    desktop-app::external_nim_cpp_wrapper
 )
 
 target_precompile_headers(Toome PRIVATE $<$<COMPILE_LANGUAGE:CXX,OBJCXX>:${src_loc}/stdafx.h>)
