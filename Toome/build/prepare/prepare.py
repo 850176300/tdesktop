@@ -455,9 +455,9 @@ if customRunCommand:
     finish(0)
 
 stage('patches', """
-    git clone https://github.com/850176300/patches.git
+    git clone https://github.com/desktop-app/patches.git
     cd patches
-    git checkout 1d16279164
+    git checkout b88d491492
 """)
 
 stage('msys64', """
@@ -532,9 +532,7 @@ mac:
 stage('lzma', """
 win:
     git clone https://github.com/desktop-app/lzma.git
-    cd lzma
-    git apply ../patches/lzma.diff
-    cd C\\Util\\LzmaLib
+    cd lzma\\C\\Util\\LzmaLib
     msbuild -m LzmaLib.sln /property:Configuration=Debug /property:Platform="$X8664"
 release:
     msbuild -m LzmaLib.sln /property:Configuration=Release /property:Platform="$X8664"
@@ -560,11 +558,9 @@ stage('zlib', """
 win:
     cmake . ^
         -A %WIN32X64% ^
-        -DCMAKE_MSVC_RUNTIME_LIBRARY="MultiThreaded$<$<CONFIG:Debug>:Debug>DLL" ^
-        -DCMAKE_C_FLAGS_DEBUG="/MDd /Zi /Ob0 /Od /RTC1" ^
-        -DCMAKE_CXX_FLAGS_DEBUG="/MDd /Zi /Ob0 /Od /RTC1" ^
-        -DCMAKE_C_FLAGS_RELEASE="/MD /O2 /Ob2 /DNDEBUG" ^
-        -DCMAKE_CXX_FLAGS_RELEASE="/MD /O2 /Ob2 /DNDEBUG" ^
+        -DCMAKE_MSVC_RUNTIME_LIBRARY="MultiThreaded$<$<CONFIG:Debug>:Debug>" ^
+        -DCMAKE_C_FLAGS_DEBUG="/MTd /Zi /Ob0 /Od /RTC1" ^
+        -DCMAKE_C_FLAGS_RELEASE="/MT /O2 /Ob2 /DNDEBUG" ^
         -DCMAKE_C_FLAGS="/DZLIB_WINAPI"
     cmake --build . --config Debug --parallel
 release:
@@ -585,13 +581,7 @@ win:
     cmake . ^
         -A %WIN32X64% ^
         -DWITH_JPEG8=ON ^
-        -DPNG_SUPPORTED=OFF ^
-        -DWITH_CRT_DLL=ON ^
-        -DCMAKE_MSVC_RUNTIME_LIBRARY="MultiThreaded$<$<CONFIG:Debug>:Debug>DLL" ^
-        -DCMAKE_C_FLAGS_DEBUG="/MDd /Zi /Ob0 /Od /RTC1" ^
-        -DCMAKE_CXX_FLAGS_DEBUG="/MDd /Zi /Ob0 /Od /RTC1" ^
-        -DCMAKE_C_FLAGS_RELEASE="/MD /O2 /Ob2 /DNDEBUG" ^
-        -DCMAKE_CXX_FLAGS_RELEASE="/MD /O2 /Ob2 /DNDEBUG" 
+        -DPNG_SUPPORTED=OFF
     cmake --build . --config Debug --parallel
 release:
     cmake --build . --config Release --parallel
@@ -625,11 +615,11 @@ stage('openssl3', """
     git clone -b openssl-3.2.1 https://github.com/openssl/openssl openssl3
     cd openssl3
 win32:
-    perl Configure no-shared no-tests debug-VC-WIN32 /FS /MDd /Zi
+    perl Configure no-shared no-tests debug-VC-WIN32 /FS
 win64:
-    perl Configure no-shared no-tests debug-VC-WIN64A /FS /MDd /Zi 
+    perl Configure no-shared no-tests debug-VC-WIN64A /FS
 winarm:
-    perl Configure no-shared no-tests debug-VC-WIN64-ARM /FS /MDd /Zi 
+    perl Configure no-shared no-tests debug-VC-WIN64-ARM /FS
 win:
     jom -j%NUMBER_OF_PROCESSORS% build_libs
     mkdir out.dbg
@@ -641,11 +631,11 @@ release:
     jom clean
     move out.dbg\\ossl_static out.dbg\\ossl_static.pdb
 win32_release:
-    perl Configure no-shared no-tests VC-WIN32 /FS /MD /O2
+    perl Configure no-shared no-tests VC-WIN32 /FS
 win64_release:
-    perl Configure no-shared no-tests VC-WIN64A /FS /MD /O2
+    perl Configure no-shared no-tests VC-WIN64A /FS
 winarm_release:
-    perl Configure no-shared no-tests VC-WIN64-ARM /FS /MD /O2
+    perl Configure no-shared no-tests VC-WIN64-ARM /FS
 win_release:
     jom -j%NUMBER_OF_PROCESSORS% build_libs
     mkdir out
@@ -676,11 +666,9 @@ win:
     cmake -B out . ^
         -A %WIN32X64% ^
         -DCMAKE_INSTALL_PREFIX=%LIBS_DIR%/local ^
-        -DCMAKE_MSVC_RUNTIME_LIBRARY="MultiThreaded$<$<CONFIG:Debug>:Debug>DLL" ^
-        -DCMAKE_C_FLAGS_DEBUG="/MDd /Zi /Ob0 /Od /RTC1" ^
-        -DCMAKE_CXX_FLAGS_DEBUG="/MDd /Zi /Ob0 /Od /RTC1" ^
-        -DCMAKE_C_FLAGS_RELEASE="/MD /O2 /Ob2 /DNDEBUG" ^
-        -DCMAKE_CXX_FLAGS_RELEASE="/MD /O2 /Ob2 /DNDEBUG" 
+        -DCMAKE_MSVC_RUNTIME_LIBRARY="MultiThreaded$<$<CONFIG:Debug>:Debug>" ^
+        -DCMAKE_C_FLAGS_DEBUG="/MTd /Zi /Ob0 /Od /RTC1" ^
+        -DCMAKE_C_FLAGS_RELEASE="/MT /O2 /Ob2 /DNDEBUG"
     cmake --build out --config Debug --parallel
     cmake --build out --config Release --parallel
     cmake --install out --config Release
@@ -700,12 +688,7 @@ stage('rnnoise', """
     mkdir out
     cd out
 win:
-    cmake -A %WIN32X64% .. ^
-        -DCMAKE_MSVC_RUNTIME_LIBRARY="MultiThreaded$<$<CONFIG:Debug>:Debug>DLL" ^
-        -DCMAKE_C_FLAGS_DEBUG="/MDd /Zi /Ob0 /Od /RTC1" ^
-        -DCMAKE_CXX_FLAGS_DEBUG="/MDd /Zi /Ob0 /Od /RTC1" ^
-        -DCMAKE_C_FLAGS_RELEASE="/MD /O2 /Ob2 /DNDEBUG" ^
-        -DCMAKE_CXX_FLAGS_RELEASE="/MD /O2 /Ob2 /DNDEBUG" 
+    cmake -A %WIN32X64% ..
     cmake --build . --config Debug --parallel
 release:
     cmake --build . --config Release --parallel
@@ -789,11 +772,11 @@ win:
 
 depends:python/Scripts/activate.bat
     %THIRDPARTY_DIR%\\python\\Scripts\\activate.bat
-    meson setup --cross-file %FILE% --prefix %LIBS_DIR%/local --default-library=static --buildtype=debug -Denable_tools=false -Denable_tests=false %DAV1D_ASM_DISABLE% -Db_vscrt=mdd builddir-debug
+    meson setup --cross-file %FILE% --prefix %LIBS_DIR%/local --default-library=static --buildtype=debug -Denable_tools=false -Denable_tests=false %DAV1D_ASM_DISABLE% -Db_vscrt=mtd builddir-debug
     meson compile -C builddir-debug
     meson install -C builddir-debug
 release:
-    meson setup --cross-file %FILE% --prefix %LIBS_DIR%/local --default-library=static --buildtype=release -Denable_tools=false -Denable_tests=false -Db_vscrt=md builddir-release
+    meson setup --cross-file %FILE% --prefix %LIBS_DIR%/local --default-library=static --buildtype=release -Denable_tools=false -Denable_tests=false -Db_vscrt=mt builddir-release
     meson compile -C builddir-release
     meson install -C builddir-release
 win:
@@ -852,11 +835,11 @@ win:
 
 depends:python/Scripts/activate.bat
     %THIRDPARTY_DIR%\\python\\Scripts\\activate.bat
-    meson setup --cross-file %FILE% --prefix %LIBS_DIR%/local --default-library=static --buildtype=debug -Db_vscrt=mdd builddir-debug
+    meson setup --cross-file %FILE% --prefix %LIBS_DIR%/local --default-library=static --buildtype=debug -Db_vscrt=mtd builddir-debug
     meson compile -C builddir-debug
     meson install -C builddir-debug
 release:
-    meson setup --cross-file %FILE% --prefix %LIBS_DIR%/local --default-library=static --buildtype=release -Db_vscrt=md builddir-release
+    meson setup --cross-file %FILE% --prefix %LIBS_DIR%/local --default-library=static --buildtype=release -Db_vscrt=mt builddir-release
     meson compile -C builddir-release
     meson install -C builddir-release
 win:
@@ -894,11 +877,9 @@ win:
     cmake . ^
         -A %WIN32X64% ^
         -DCMAKE_INSTALL_PREFIX=%LIBS_DIR%/local ^
-        -DCMAKE_MSVC_RUNTIME_LIBRARY="MultiThreaded$<$<CONFIG:Debug>:Debug>DLL" ^
-        -DCMAKE_C_FLAGS_DEBUG="/MDd /Zi /Ob0 /Od /RTC1" ^
-        -DCMAKE_CXX_FLAGS_DEBUG="/MDd /Zi /Ob0 /Od /RTC1" ^
-        -DCMAKE_C_FLAGS_RELEASE="/MD /O2 /Ob2 /DNDEBUG" ^
-        -DCMAKE_CXX_FLAGS_RELEASE="/MD /O2 /Ob2 /DNDEBUG" ^
+        -DCMAKE_MSVC_RUNTIME_LIBRARY="MultiThreaded$<$<CONFIG:Debug>:Debug>" ^
+        -DCMAKE_C_FLAGS_DEBUG="/MTd /Zi /Ob0 /Od /RTC1" ^
+        -DCMAKE_C_FLAGS_RELEASE="/MT /O2 /Ob2 /DNDEBUG" ^
         -DBUILD_SHARED_LIBS=OFF ^
         -DAVIF_ENABLE_WERROR=OFF ^
         -DAVIF_CODEC_DAV1D=ON
@@ -927,13 +908,13 @@ win:
     cmake . ^
         -A %WIN32X64% ^
         -DCMAKE_INSTALL_PREFIX=%LIBS_DIR%/local ^
-        -DCMAKE_MSVC_RUNTIME_LIBRARY="MultiThreaded$<$<CONFIG:Debug>:Debug>DLL" ^
+        -DCMAKE_MSVC_RUNTIME_LIBRARY="MultiThreaded$<$<CONFIG:Debug>:Debug>" ^
         -DCMAKE_C_FLAGS="/DLIBDE265_STATIC_BUILD" ^
         -DCMAKE_CXX_FLAGS="/DLIBDE265_STATIC_BUILD" ^
-        -DCMAKE_C_FLAGS_DEBUG="/MDd /Zi /Ob0 /Od /RTC1" ^
-        -DCMAKE_CXX_FLAGS_DEBUG="/MDd /Zi /Ob0 /Od /RTC1" ^
-        -DCMAKE_C_FLAGS_RELEASE="/MD /O2 /Ob2 /DNDEBUG" ^
-        -DCMAKE_CXX_FLAGS_RELEASE="/MD /O2 /Ob2 /DNDEBUG" ^
+        -DCMAKE_C_FLAGS_DEBUG="/MTd /Zi /Ob0 /Od /RTC1" ^
+        -DCMAKE_CXX_FLAGS_DEBUG="/MTd /Zi /Ob0 /Od /RTC1" ^
+        -DCMAKE_C_FLAGS_RELEASE="/MT /O2 /Ob2 /DNDEBUG" ^
+        -DCMAKE_CXX_FLAGS_RELEASE="/MT /O2 /Ob2 /DNDEBUG" ^
         -DENABLE_SDL=OFF ^
         -DBUILD_SHARED_LIBS=OFF ^
         -DENABLE_DECODER=OFF ^
@@ -961,8 +942,8 @@ stage('libwebp', """
     git clone -b v1.4.0 https://github.com/webmproject/libwebp.git
     cd libwebp
 win:
-    nmake /f Makefile.vc CFG=debug-static OBJDIR=out RTLIBCFG=dynamic all
-    nmake /f Makefile.vc CFG=release-static OBJDIR=out RTLIBCFG=dynamic all
+    nmake /f Makefile.vc CFG=debug-static OBJDIR=out RTLIBCFG=static all
+    nmake /f Makefile.vc CFG=release-static OBJDIR=out RTLIBCFG=static all
     copy out\\release-static\\$X8664\\lib\\libwebp.lib out\\release-static\\$X8664\\lib\\webp.lib
     copy out\\release-static\\$X8664\\lib\\libwebpdemux.lib out\\release-static\\$X8664\\lib\\webpdemux.lib
     copy out\\release-static\\$X8664\\lib\\libwebpmux.lib out\\release-static\\$X8664\\lib\\webpmux.lib
@@ -1006,11 +987,11 @@ win:
     cmake . ^
         -A %WIN32X64% ^
         -DCMAKE_INSTALL_PREFIX=%LIBS_DIR%/local ^
-        -DCMAKE_MSVC_RUNTIME_LIBRARY="MultiThreaded$<$<CONFIG:Debug>:Debug>DLL" ^
-        -DCMAKE_C_FLAGS_DEBUG="/MDd /Zi /Ob0 /Od /RTC1" ^
-        -DCMAKE_CXX_FLAGS_DEBUG="/MDd /Zi /Ob0 /Od /RTC1" ^
-        -DCMAKE_C_FLAGS_RELEASE="/MD /O2 /Ob2 /DNDEBUG" ^
-        -DCMAKE_CXX_FLAGS_RELEASE="/MD /O2 /Ob2 /DNDEBUG" ^
+        -DCMAKE_MSVC_RUNTIME_LIBRARY="MultiThreaded$<$<CONFIG:Debug>:Debug>" ^
+        -DCMAKE_C_FLAGS_DEBUG="/MTd /Zi /Ob0 /Od /RTC1" ^
+        -DCMAKE_CXX_FLAGS_DEBUG="/MTd /Zi /Ob0 /Od /RTC1" ^
+        -DCMAKE_C_FLAGS_RELEASE="/MT /O2 /Ob2 /DNDEBUG" ^
+        -DCMAKE_CXX_FLAGS_RELEASE="/MT /O2 /Ob2 /DNDEBUG" ^
         -DBUILD_SHARED_LIBS=OFF ^
         -DBUILD_TESTING=OFF ^
         -DENABLE_PLUGIN_LOADING=OFF ^
@@ -1076,13 +1057,13 @@ win:
     cmake . ^
         -A %WIN32X64% ^
         -DCMAKE_INSTALL_PREFIX=%LIBS_DIR%/local ^
-        -DCMAKE_MSVC_RUNTIME_LIBRARY="MultiThreaded$<$<CONFIG:Debug>:Debug>DLL" ^
+        -DCMAKE_MSVC_RUNTIME_LIBRARY="MultiThreaded$<$<CONFIG:Debug>:Debug>" ^
         -DCMAKE_C_FLAGS="/DJXL_STATIC_DEFINE /DJXL_THREADS_STATIC_DEFINE /DJXL_CMS_STATIC_DEFINE" ^
         -DCMAKE_CXX_FLAGS="/DJXL_STATIC_DEFINE /DJXL_THREADS_STATIC_DEFINE /DJXL_CMS_STATIC_DEFINE" ^
-        -DCMAKE_C_FLAGS_DEBUG="/MDd /Zi /Ob0 /Od /RTC1" ^
-        -DCMAKE_CXX_FLAGS_DEBUG="/MDd /Zi /Ob0 /Od /RTC1" ^
-        -DCMAKE_C_FLAGS_RELEASE="/MD /O2 /Ob2 /DNDEBUG" ^
-        -DCMAKE_CXX_FLAGS_RELEASE="/MD /O2 /Ob2 /DNDEBUG" ^
+        -DCMAKE_C_FLAGS_DEBUG="/MTd /Zi /Ob0 /Od /RTC1" ^
+        -DCMAKE_CXX_FLAGS_DEBUG="/MTd /Zi /Ob0 /Od /RTC1" ^
+        -DCMAKE_C_FLAGS_RELEASE="/MT /O2 /Ob2 /DNDEBUG" ^
+        -DCMAKE_CXX_FLAGS_RELEASE="/MT /O2 /Ob2 /DNDEBUG" ^
         %cmake_defines%
     cmake --build . --config Debug --parallel
     cmake --install . --config Debug
@@ -1172,10 +1153,10 @@ stage('liblcms2', """
 win:
 depends:python/Scripts/activate.bat
     %THIRDPARTY_DIR%\\python\\Scripts\\activate.bat
-    meson setup --default-library=static --buildtype=debug -Db_vscrt=mdd out/Debug
+    meson setup --default-library=static --buildtype=debug -Db_vscrt=mtd out/Debug
     meson compile -C out/Debug
 release:
-    meson setup --default-library=static --buildtype=release -Db_vscrt=md out/Release
+    meson setup --default-library=static --buildtype=release -Db_vscrt=mt out/Release
     meson compile -C out/Release
 win:
     deactivate
@@ -1404,7 +1385,7 @@ win:
     cmake -B build . ^
         -A %WIN32X64% ^
         -D LIBTYPE:STRING=STATIC ^
-        -D FORCE_STATIC_VCRT=OFF ^
+        -D FORCE_STATIC_VCRT=ON ^
         -D ALSOFT_UTILS=OFF ^
         -D ALSOFT_EXAMPLES=OFF ^
         -D ALSOFT_TESTS=OFF
@@ -1552,15 +1533,11 @@ win:
     git clone https://github.com/desktop-app/tg_angle.git
     cd tg_angle
     git checkout e3f59e8d0c
-    git apply ../patches/tg_angle.diff
     mkdir out
     cd out
     mkdir Debug
     cd Debug
     cmake -G Ninja ^
-        -DCMAKE_MSVC_RUNTIME_LIBRARY="MultiThreadedDebugDLL" ^
-        -DCMAKE_C_FLAGS="/MDd /Zi /Ob0 /Od /RTC1" ^
-        -DCMAKE_CXX_FLAGS="/MDd /Zi /Ob0 /Od /RTC1" ^
         -DCMAKE_BUILD_TYPE=Debug ^
         -DTG_ANGLE_SPECIAL_TARGET=%SPECIAL_TARGET% ^
         -DTG_ANGLE_ZLIB_INCLUDE_PATH=%LIBS_DIR%/zlib ../..
@@ -1571,9 +1548,6 @@ release:
     cd Release
     cmake -G Ninja ^
         -DCMAKE_BUILD_TYPE=Release ^
-        -DCMAKE_MSVC_RUNTIME_LIBRARY="MultiThreadedDLL" ^
-        -DCMAKE_C_FLAGS="/MD /O2 /Ob2 /DNDEBUG" ^
-        -DCMAKE_CXX_FLAGS="/MD /O2 /Ob2 /DNDEBUG" ^
         -DTG_ANGLE_SPECIAL_TARGET=%SPECIAL_TARGET% ^
         -DTG_ANGLE_ZLIB_INCLUDE_PATH=%LIBS_DIR%/zlib ../..
     ninja
@@ -1617,6 +1591,7 @@ win:
         -opensource ^
         -confirm-license ^
         -static ^
+        -static-runtime ^
         -opengl es2 -no-angle ^
         -I "%ANGLE_DIR%\\include" ^
         -D "KHRONOS_STATIC=" ^
@@ -1764,7 +1739,7 @@ win:
         -D WebP_mux_LIBRARY="%WEBP_DIR%\\out\\release-static\\$X8664\\lib\\webpmux.lib" ^
         -D LCMS2_FOUND=1 ^
         -D LCMS2_INCLUDE_DIR="%LCMS2_DIR%\\include" ^
-        -D LCMS2_LIBRARIES="%LCMS2_DIR%\\out\\Release\\src\\liblcms2.a"
+        -D LCMS2_LIBRARIES="%LCMS2_DIR%\\out\Release\\src\\liblcms2.a"
 
     cmake --build . --config Debug --parallel
     cmake --install . --config Debug
@@ -1776,7 +1751,6 @@ stage('tg_owt', """
     git clone https://github.com/desktop-app/tg_owt.git
     cd tg_owt
     git checkout 4a60ce1ab9
-    git apply ../patches/tg_owt.diff
     git submodule init
     git submodule update
 win:
@@ -1791,9 +1765,6 @@ win:
     mkdir Debug
     cd Debug
     cmake -G Ninja \
-        -DCMAKE_MSVC_RUNTIME_LIBRARY="MultiThreaded$<$<CONFIG:Debug>:Debug>DLL" \
-        -DCMAKE_C_FLAGS="/MDd /Zi /Ob0 /Od /RTC1" \
-        -DCMAKE_CXX_FLAGS="/MDd /Zi /Ob0 /Od /RTC1" \
         -DCMAKE_BUILD_TYPE=Debug \
         -DTG_OWT_BUILD_AUDIO_BACKENDS=OFF \
         -DTG_OWT_SPECIAL_TARGET=$SPECIAL_TARGET \
@@ -1809,9 +1780,6 @@ release:
     mkdir Release
     cd Release
     cmake -G Ninja \
-        -DCMAKE_MSVC_RUNTIME_LIBRARY="MultiThreaded$<$<CONFIG:Debug>:Debug>DLL" \
-        -DCMAKE_C_FLAGS="/MD /O2 /Ob2 /DNDEBUG" \
-        -DCMAKE_CXX_FLAGS="/MD /O2 /Ob2 /DNDEBUG" \
         -DCMAKE_BUILD_TYPE=Release \
         -DTG_OWT_BUILD_AUDIO_BACKENDS=OFF \
         -DTG_OWT_SPECIAL_TARGET=$SPECIAL_TARGET \
@@ -1903,9 +1871,9 @@ win:
         -A %WIN32X64% ^
         -D ADA_TESTING=OFF ^
         -D ADA_TOOLS=OFF ^
-        -D CMAKE_MSVC_RUNTIME_LIBRARY="MultiThreaded$<$<CONFIG:Debug>:Debug>DLL" ^
-        -D CMAKE_C_FLAGS_DEBUG="/MDd /Zi /Ob0 /Od /RTC1" ^
-        -D CMAKE_C_FLAGS_RELEASE="/MD /O2 /Ob2 /DNDEBUG"
+        -D CMAKE_MSVC_RUNTIME_LIBRARY="MultiThreaded$<$<CONFIG:Debug>:Debug>" ^
+        -D CMAKE_C_FLAGS_DEBUG="/MTd /Zi /Ob0 /Od /RTC1" ^
+        -D CMAKE_C_FLAGS_RELEASE="/MT /O2 /Ob2 /DNDEBUG"
     cmake --build out --config Debug --parallel
     cmake --build out --config Release --parallel
 mac:
@@ -1935,8 +1903,7 @@ win:
         -Dprotobuf_BUILD_PROTOBUF_BINARIES=ON ^
         -Dprotobuf_BUILD_LIBPROTOC=ON ^
         -Dprotobuf_WITH_ZLIB_DEFAULT=OFF ^
-        -Dprotobuf_DEBUG_POSTFIX="" ^
-        -Dprotobuf_MSVC_STATIC_RUNTIME=OFF
+        -Dprotobuf_DEBUG_POSTFIX=""
     cmake --build . --config Release --parallel
     cmake --build . --config Debug --parallel
 """)
@@ -1956,18 +1923,17 @@ win:
 #         -Dprotobuf_BUILD_LIBPROTOC=ON \
 #         -Dprotobuf_WITH_ZLIB_DEFAULT=OFF
 #     cmake --build . $MAKE_THREADS_CNT
-
 stage('libnim', """
 win:
-    git clone --recursive -b 10.8.10_%WIN32X64%  https://github.com/850176300/nim_sdk.git
+    git clone --recursive -b 10.8.10_%WIN32X64%  https://gitee.com/darli/nim_sdk.git
     cd nim_sdk/wrapper
-    mkdir build_Debug
-    cd build_Debug
+    mkdir build
+    cd build
     cmake .. ^
         -A %WIN32X64% ^
-        -D CMAKE_MSVC_RUNTIME_LIBRARY="MultiThreaded$<$<CONFIG:Debug>:Debug>DLL" ^
-        -D CMAKE_C_FLAGS_DEBUG="/MDd /Zi /Ob0 /Od /RTC1" ^
-        -D CMAKE_C_FLAGS_RELEASE="/MD /O2 /Ob2 /DNDEBUG"
+        -D CMAKE_MSVC_RUNTIME_LIBRARY="MultiThreaded$<$<CONFIG:Debug>:Debug>" ^
+        -DCMAKE_CXX_FLAGS_DEBUG="/MTd /Zi /Ob0 /Od /RTC1" ^
+        -DCMAKE_CXX_FLAGS_RELEASE="/MT /O2 /Ob2 /DNDEBUG"
     cmake --build . --config Debug --parallel --target install
     cmake --build . --config Release --parallel --target install
 """)
