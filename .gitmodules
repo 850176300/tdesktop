@@ -24,7 +24,7 @@
 	url = https://github.com/desktop-app/lib_rpl.git
 [submodule "Toome/lib_base"]
 	path = Toome/lib_base
-	url = https://github.com/desktop-app/lib_base.git
+url=https://github.com/850176300/lib_base.git
 [submodule "Toome/codegen"]
 	path = Toome/codegen
 	url = https://github.com/desktop-app/codegen.git
