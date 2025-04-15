@@ -140,6 +140,8 @@ public:
 	Application &operator=(const Application &other) = delete;
 	~Application();
 
+	void login();
+
 	void run();
 
 	[[nodiscard]] Platform::Integration &platformIntegration() const {

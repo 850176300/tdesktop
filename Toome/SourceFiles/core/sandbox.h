@@ -38,6 +38,10 @@ public:
 
 	int start();
 
+	void connectToAccount(QString account);
+
+	void startSocketServer(QString account);
+
 	void refreshGlobalProxy();
 
 	void postponeCall(FnMut<void()> &&callable);
@@ -49,6 +53,8 @@ public:
 		const auto wrap = createEventNestingLevel();
 		return callable();
 	}
+
+	rpl::producer<bool> getLocalConnectState();
 
 	rpl::producer<> widgetUpdateRequests() const;
 
@@ -130,6 +136,7 @@ private:
 	MTP::ProxyData _sandboxProxy;
 
 	rpl::event_stream<> _widgetUpdateRequests;
+	rpl::variable<bool> _connectServerStatus;
 
 	std::unique_ptr<QThread> _deadlockDetector;
 

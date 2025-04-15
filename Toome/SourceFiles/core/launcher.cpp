@@ -365,7 +365,8 @@ int Launcher::exec() {
 	}
 
 	// Must be started before Platform is started.
-	Logs::start();
+	//Logs::start();
+	cForceWorkingDir(cExeDir());
 	base::options::init(cWorkingDir() + "tdata/experimental_options.json");
 
 	// Must be called after options are inited.
@@ -391,7 +392,7 @@ int Launcher::exec() {
 	}
 
 	// Must be started before Sandbox is created.
-	Platform::start();
+	//Platform::start();
 	ThirdParty::start();
 	//initialize nim sdk
 	initIMSdk();

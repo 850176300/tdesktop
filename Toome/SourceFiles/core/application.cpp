@@ -252,6 +252,18 @@ Application::~Application() {
 	Instance = nullptr;
 }
 
+void Application::login() {
+	//start default ui setting
+	style::SetCustomFont(u"Default"_q);
+	style::internal::StartFonts();
+	style::StartManager(100);
+	Ui::InitTextOptions();
+	Ui::StartCachedCorners();
+	Ui::PreloadTextSpoilerMask();
+
+
+}
+
 void Application::run() {
 	// Depends on OpenSSL on macOS, so on ThirdParty::start().
 	// Depends on notifications settings.

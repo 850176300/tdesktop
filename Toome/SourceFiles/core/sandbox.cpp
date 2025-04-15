@@ -81,7 +81,8 @@ bool Sandbox::QuitOnStartRequested = false;
 
 Sandbox::Sandbox(int &argc, char **argv)
 : QApplication(argc, argv)
-, _mainThreadId(QThread::currentThreadId()) {
+, _mainThreadId(QThread::currentThreadId())
+, _connectServerStatus(false){
 }
 
 int Sandbox::start() {
@@ -90,34 +91,34 @@ int Sandbox::start() {
 	}
 
 	{
-		const auto d = QFile::encodeName(QDir(cWorkingDir()).absolutePath());
+		const auto d = QFile::encodeName(u"Toome Desktop App"_q); //Always Use Same Socket Name
 		char h[33] = { 0 };
 		hashMd5Hex(d.constData(), d.size(), h);
 		_localServerName = Platform::SingleInstanceLocalServerName(h);
 	}
 
-	{
-		const auto d = QFile::encodeName(cExeDir() + cExeName());
-		QByteArray h;
-		h.resize(32);
-		hashMd5Hex(d.constData(), d.size(), h.data());
-		_lockFile = std::make_unique<QLockFile>(QDir::tempPath() + '/' + h + '-' + cGUIDStr());
-		_lockFile->setStaleLockTime(0);
-		if (!_lockFile->tryLock()
-			&& Launcher::Instance().customWorkingDir()) {
-			// On Windows, QLockFile has problems detecting a stale lock
-			// if the machine's hostname contains characters outside the US-ASCII character set.
-			if constexpr (Platform::IsWindows()) {
-				// QLockFile::removeStaleLockFile returns false on Windows,
-				// when the application owning the lock is still running.
-				if (!_lockFile->removeStaleLockFile()) {
-					gManyInstance = true;
-				}
-			} else {
-				gManyInstance = true;
-			}
-		}
-	}
+	//{
+	//	const auto d = QFile::encodeName(u"Toome Desktop App"_q);
+	//	QByteArray h;
+	//	h.resize(32);
+	//	hashMd5Hex(d.constData(), d.size(), h.data());
+	//	_lockFile = std::make_unique<QLockFile>(QDir::tempPath() + '/' + h + '-' + cGUIDStr());
+	//	_lockFile->setStaleLockTime(0);
+	//	if (!_lockFile->tryLock()
+	//		&& Launcher::Instance().customWorkingDir()) {
+	//		// On Windows, QLockFile has problems detecting a stale lock
+	//		// if the machine's hostname contains characters outside the US-ASCII character set.
+	//		if constexpr (Platform::IsWindows()) {
+	//			// QLockFile::removeStaleLockFile returns false on Windows,
+	//			// when the application owning the lock is still running.
+	//			if (!_lockFile->removeStaleLockFile()) {
+	//				gManyInstance = true;
+	//			}
+	//		} else {
+	//			gManyInstance = true;
+	//		}
+	//	}
+	//}
 
 #if defined Q_OS_LINUX && QT_VERSION >= QT_VERSION_CHECK(6, 2, 0)
 	_localServer.setSocketOptions(QLocalServer::AbstractNamespaceOption);
@@ -173,6 +174,25 @@ int Sandbox::start() {
 	return exec();
 }
 
+void Sandbox::connectToAccount(QString account) {
+	_localSocket.connectToServer(_localServerName);
+}
+
+void Sandbox::startSocketServer(QString account) {
+	const auto d = QFile::encodeName(u"Toome Desktop App:"_q + account); //Always Use Same Socket Name
+	char h[33] = { 0 };
+	hashMd5Hex(d.constData(), d.size(), h);
+	_localServerName = Platform::SingleInstanceLocalServerName(h);
+#ifndef Q_OS_WINRT
+	psCheckLocalSocket(_localServerName);
+
+	if (!_localServer.listen(_localServerName)) {
+		LOG(("Failed to start listening to %1 server: %2").arg(_localServerName, _localServer.errorString()));
+		return Quit();
+	}
+#endif // !Q_OS_WINRT
+}
+
 void Sandbox::QuitWhenStarted() {
 	if (!QApplication::instance() || !Instance()._started) {
 		QuitOnStartRequested = true;
@@ -205,7 +225,8 @@ void Sandbox::launchApplication() {
 		// our filter after the Application constructor installs his.
 		installNativeEventFilter(this);
 
-		_application->run();
+		//first open login window
+		_application->login();
 	});
 }
 
@@ -327,6 +348,8 @@ void Sandbox::socketReading() {
 		"activating and quitting..."
 		).arg(processId
 		).arg(windowId));
+
+	_localSocket.close();
 	return Quit();
 }
 
@@ -343,17 +366,17 @@ void Sandbox::socketError(QLocalSocket::LocalSocketError e) {
 	} else {
 		LOG(("Socket connect error %1, starting server and app...").arg(e));
 	}
-	_localSocket.close();
+	_localSocket.abort(); //use abort instead of close for next time connect
 
 	// Local server does not work in WinRT build.
-#ifndef Q_OS_WINRT
-	psCheckLocalSocket(_localServerName);
-
-	if (!_localServer.listen(_localServerName)) {
-		LOG(("Failed to start listening to %1 server: %2").arg(_localServerName, _localServer.errorString()));
-		return Quit();
-	}
-#endif // !Q_OS_WINRT
+//#ifndef Q_OS_WINRT
+//	psCheckLocalSocket(_localServerName);
+//
+//	if (!_localServer.listen(_localServerName)) {
+//		LOG(("Failed to start listening to %1 server: %2").arg(_localServerName, _localServer.errorString()));
+//		return Quit();
+//	}
+//#endif // !Q_OS_WINRT
 
 	if (!Core::UpdaterDisabled()
 		&& !cNoStartUpdate()
@@ -366,7 +389,7 @@ void Sandbox::socketError(QLocalSocket::LocalSocketError e) {
 	if (cQuit()) {
 		return Quit();
 	}
-
+	_connectServerStatus = false;
 	singleInstanceChecked();
 }
 
@@ -376,10 +399,10 @@ void Sandbox::singleInstanceChecked() {
 	}
 
 	refreshGlobalProxy();
-	if (!Logs::started() || !Logs::instanceChecked()) {
+	/*if (!Logs::started() || !Logs::instanceChecked()) {
 		new NotStartedWindow();
 		return;
-	}
+	}*/
 	const auto result = CrashReports::Start();
 	v::match(result, [&](CrashReports::Status status) {
 		if (status == CrashReports::CantOpen) {
@@ -623,6 +646,10 @@ bool Sandbox::nativeEventFilter(
 		native_event_filter_result *result) {
 	registerEnterFromEventLoop();
 	return false;
+}
+
+rpl::producer<bool> Sandbox::getLocalConnectState() {
+	return _connectServerStatus.value();
 }
 
 rpl::producer<> Sandbox::widgetUpdateRequests() const {

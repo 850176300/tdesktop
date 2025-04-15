@@ -242,16 +242,15 @@ void Launcher::initIMSdk() {
 			if (jsonObject.contains(nim::kNIMDefaultLinkAddress) && jsonObject[nim::kNIMDefaultLinkAddress].isString())
 				config.default_link_address_ = jsonObject[nim::kNIMDefaultLinkAddress].toString().toStdString();
 		}
-		HMODULE instance_nim_ = ::LoadLibraryA("nim.dll");
-		if (instance_nim_ == NULL) {
-			auto error = ::GetLastError();
-			return ;
-		}
 
 		std::string app_data_path = (cWorkingDir() + u"nim"_q).toStdString();
 		bool suc = nim::Client::Init(app_key.toStdString(), app_data_path, "", config);
 		if (suc) {
-			DEBUG_LOG(("Nim SDK初始化成功"));
+			DEBUG_LOG(("Nim Sdk Initialized!! with cache path:%1").arg(app_data_path.c_str()));
+		}
+		else {
+			MessageBox(nullptr, L"Cannot Initialize Nim Library!", L"Fatal Error", MB_ICONERROR);
+			std::abort();
 		}
 	}
 	

@@ -127,14 +127,7 @@ void CheckLoadedModules() {
 
 		const auto nim_dll_path = exe.substr(0, last + 1)
 			+ L"modules\\" + arch + L"\\nim";
-		QByteArray path_env = qgetenv("PATH");
-		if (!path_env.isEmpty()) {
-			QString new_path = QString::fromStdWString(nim_dll_path) + u";"_q + path_env;
-			qputenv("PATH", new_path.toUtf8());
-		}
-		else {
-			qputenv("PATH", QString::fromStdWString(nim_dll_path).toUtf8());
-		}
+		AddDllDirectory(nim_dll_path.c_str());
 	}
 }
 
