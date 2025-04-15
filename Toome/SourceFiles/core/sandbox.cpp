@@ -226,7 +226,7 @@ void Sandbox::launchApplication() {
 		installNativeEventFilter(this);
 
 		//first open login window
-		_application->login();
+		_application->run();
 	});
 }
 
