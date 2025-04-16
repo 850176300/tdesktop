@@ -1923,7 +1923,7 @@ win:
 #         -Dprotobuf_BUILD_LIBPROTOC=ON \
 #         -Dprotobuf_WITH_ZLIB_DEFAULT=OFF
 #     cmake --build . $MAKE_THREADS_CNT
-stage('libnim', """
+stage('nim_sdk', """
 win:
     git clone --recursive -b 10.8.10_%WIN32X64%  https://gitee.com/darli/nim_sdk.git
     cd nim_sdk/wrapper
