@@ -1308,6 +1308,8 @@ PRIVATE
     platform/linux/integration_linux.h
     platform/linux/main_window_linux.cpp
     platform/linux/main_window_linux.h
+    platform/linux/simple_window_linux.cpp
+    platform/linux/simple_window_linux.h
     platform/linux/notifications_manager_linux.cpp
     platform/linux/notifications_manager_linux.h
     platform/linux/overlay_widget_linux.h
@@ -1324,6 +1326,8 @@ PRIVATE
     platform/mac/mac_iconv_helper.c
     platform/mac/main_window_mac.mm
     platform/mac/main_window_mac.h
+    platform/mac/simple_window_mac.mm
+    platform/mac/simple_window_mac.h
     platform/mac/notifications_manager_mac.mm
     platform/mac/notifications_manager_mac.h
     platform/mac/overlay_widget_mac.h
@@ -1361,6 +1365,8 @@ PRIVATE
     platform/win/integration_win.h
     platform/win/main_window_win.cpp
     platform/win/main_window_win.h
+    platform/win/simple_window_win.cpp
+    platform/win/simple_window_win.h
     platform/win/notifications_manager_win.cpp
     platform/win/notifications_manager_win.h
     platform/win/overlay_widget_win.h
@@ -1598,6 +1604,8 @@ PRIVATE
     ui/resize_area.h
     ui/unread_badge.cpp
     ui/unread_badge.h
+    window/simple_window.cpp
+    window/simple_window.h
     window/main_window.cpp
     window/main_window.h
     window/notifications_manager.cpp
