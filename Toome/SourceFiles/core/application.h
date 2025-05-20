@@ -28,6 +28,7 @@ class Databases;
 
 namespace Window {
 class Controller;
+class LoginWindow;
 } // namespace Window
 
 namespace Window::Notifications {
@@ -433,6 +434,7 @@ private:
 	Window::Controller *_lastActiveWindow = nullptr;
 	Window::Controller *_lastActivePrimaryWindow = nullptr;
 	Window::Controller *_windowInSettings = nullptr;
+	std::unique_ptr<Window::LoginWindow> _loginWindow;
 
 	std::unique_ptr<Media::View::OverlayWidget> _mediaView;
 	const std::unique_ptr<Lang::Instance> _langpack;

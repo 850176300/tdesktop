@@ -160,16 +160,4 @@ private:
 	mutable crl::time _monitorLastGot = 0;
 
 };
-
-[[nodiscard]] int32 DefaultScreenNameChecksum(const QString &name);
-
-[[nodiscard]] Core::WindowPosition PositionWithScreen(
-	Core::WindowPosition position,
-	const QScreen *chosen,
-	QSize minimal);
-[[nodiscard]] Core::WindowPosition PositionWithScreen(
-	Core::WindowPosition position,
-	not_null<const QWidget*> widget,
-	QSize minimal);
-
 } // namespace Window

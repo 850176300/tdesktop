@@ -400,11 +400,5 @@ SimpleWindow::~SimpleWindow() {
 	hide();
 }
 
-int32 DefaultScreenNameChecksum(const QString &name) {
-	const auto bytes = name.toUtf8();
-	return base::crc32(bytes.constData(), bytes.size());
-}
-
-
 
 } // namespace Window

@@ -86,6 +86,7 @@ https://github.com/telegramdesktop/tdesktop/blob/master/LEGAL
 #include "boxes/premium_limits_box.h"
 #include "ui/boxes/confirm_box.h"
 #include "styles/style_window.h"
+#include "window/login_window.h"
 
 #include <QtCore/QStandardPaths>
 #include <QtCore/QMimeDatabase>
@@ -245,7 +246,7 @@ Application::~Application() {
 	Window::Theme::Uninitialize();
 
 	_mediaControlsManager = nullptr;
-
+	_loginWindow = nullptr;
 	Media::Player::finish(_audio.get());
 	style::StopManager();
 
@@ -260,8 +261,9 @@ void Application::login() {
 	Ui::InitTextOptions();
 	Ui::StartCachedCorners();
 	Ui::PreloadTextSpoilerMask();
-
-
+	_loginWindow = std::make_unique<Window::LoginWindow>();
+	_loginWindow->firstShow();
+	_loginWindow->finishFirstShow();
 }
 
 void Application::run() {

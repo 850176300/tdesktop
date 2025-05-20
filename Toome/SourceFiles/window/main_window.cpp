@@ -529,9 +529,6 @@ void MainWindow::init() {
 
 	updateTitle();
 	updateWindowIcon();
-
-	setTitleStyle(st::hiddenWindowTitle);
-	setFixedSize(QSize(400, 700));
 }
 
 void MainWindow::handleStateChanged(Qt::WindowState state) {
