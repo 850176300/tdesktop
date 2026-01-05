@@ -124,7 +124,6 @@ private:
 	void setupStep();
 	void refreshLang();
 	void showFinished();
-	void createLanguageLink();
 	void checkUpdateStatus();
 	void setupNextButton();
 	void handleUpdates(const MTPUpdates &updates);
@@ -188,13 +187,10 @@ private:
 	mtpRequestId _nearestDcRequestId = 0;
 
 	std::unique_ptr<Window::SlideAnimation> _showAnimation;
-
 	std::vector<details::Step*> _stepHistory;
 	rpl::lifetime _stepLifetime;
 
 	details::Data _data;
-
-	Ui::Animations::Simple _coverShownAnimation;
 	int _nextTopFrom = 0;
 	int _controlsTopFrom = 0;
 
@@ -202,11 +198,11 @@ private:
 
 	object_ptr<Ui::FadeWrap<Ui::IconButton>> _back;
 	object_ptr<Ui::FadeWrap<Ui::RoundButton>> _update = { nullptr };
-	object_ptr<Ui::FadeWrap<Ui::RoundButton>> _settings;
+	object_ptr<Ui::FadeWrap<Ui::IconButton>> _close;
+	object_ptr<Ui::FadeWrap<Ui::IconButton>> _settings;
 	object_ptr<Ui::FadeWrap<Ui::FlatLabel>> _testModeLabel = { nullptr };
 
 	object_ptr<Ui::FadeWrap<Ui::RoundButton>> _next;
-	object_ptr<Ui::FadeWrap<Ui::LinkButton>> _changeLanguage = { nullptr };
 	object_ptr<Ui::FadeWrap<Ui::RoundButton>> _resetAccount = { nullptr };
 	object_ptr<Ui::FadeWrap<Ui::FlatLabel>> _terms = { nullptr };
 
@@ -216,6 +212,8 @@ private:
 	Ui::Animations::Simple _nextShownAnimation;
 
 	mtpRequestId _resetRequest = 0;
+
+	object_ptr<Ui::RpWidget> _backgroundWidget;
 
 };
 

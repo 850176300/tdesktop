@@ -58,57 +58,18 @@ void PrepareSupportMode(not_null<Main::Session*> session) {
 
 } // namespace
 
-Step::CoverAnimation::~CoverAnimation() = default;
-
 Step::Step(
 	QWidget *parent,
 	not_null<Main::Account*> account,
-	not_null<Data*> data,
-	bool hasCover)
+	not_null<Data*> data)
 : RpWidget(parent)
 , _account(account)
-, _data(data)
-, _hasCover(hasCover)
-, _title(this, _hasCover ? st::introCoverTitle : st::introTitle)
-, _description(
-	this,
-	object_ptr<Ui::FlatLabel>(
-		this,
-		_hasCover
-			? st::introCoverDescription
-			: st::introDescription)) {
+, _data(data) {
 	hide();
-	style::PaletteChanged(
-	) | rpl::on_next([=] {
-		if (!_coverMask.isNull()) {
-			_coverMask = QPixmap();
-			prepareCoverMask();
-		}
-	}, lifetime());
 
 	_errorText.value(
 	) | rpl::on_next([=](const QString &text) {
 		refreshError(text);
-	}, lifetime());
-
-	_titleText.value(
-	) | rpl::on_next([=](const QString &text) {
-		_title->setText(text);
-		accessibilityNameChanged();
-		updateLabelsPosition();
-	}, lifetime());
-
-	_descriptionText.value(
-	) | rpl::on_next([=](const TextWithEntities &text) {
-		const auto label = _description->entity();
-		const auto hasSpoiler = ranges::contains(
-			text.entities,
-			EntityType::Spoiler,
-			&EntityInText::type);
-		label->setMarkedText(text);
-		label->setAttribute(Qt::WA_TransparentForMouseEvents, hasSpoiler);
-		accessibilityDescriptionChanged();
-		updateLabelsPosition();
 	}, lifetime());
 }
 
@@ -267,15 +228,6 @@ void Step::resizeEvent(QResizeEvent *e) {
 }
 
 void Step::updateLabelsPosition() {
-	Ui::SendPendingMoveResizeEvents(_description->entity());
-	if (hasCover()) {
-		_title->moveToLeft((width() - _title->width()) / 2, contentTop() + st::introCoverTitleTop);
-		_description->moveToLeft((width() - _description->width()) / 2, contentTop() + st::introCoverDescriptionTop);
-	} else {
-		_title->moveToLeft(contentLeft() + st::buttonRadius, contentTop() + st::introTitleTop);
-		_description->resizeToWidth(st::introDescription.minWidth);
-		_description->moveToLeft(contentLeft() + st::buttonRadius, contentTop() + st::introDescriptionTop);
-	}
 	if (_error) {
 		if (_errorCentered) {
 			_error->entity()->resizeToWidth(width());
@@ -290,19 +242,10 @@ int Step::errorTop() const {
 	return contentTop() + st::introErrorTop;
 }
 
-void Step::setTitleText(rpl::producer<QString> titleText) {
-	_titleText = std::move(titleText);
-}
-
-void Step::setDescriptionText(v::text::data &&descriptionText) {
-	_descriptionText = v::text::take_marked(std::move(descriptionText));
-}
 
 void Step::showFinished() {
 	_a_show.stop();
-	_coverAnimation = CoverAnimation();
 	_slideAnimation.reset();
-	prepareCoverMask();
 	activate();
 }
 
@@ -316,38 +259,12 @@ bool Step::paintAnimated(QPainter &p, QRect clip) {
 		return true;
 	}
 
-	auto dt = _a_show.value(1.);
 	if (!_a_show.animating()) {
-		if (hasCover()) {
-			paintCover(p, 0);
-		}
-		if (_coverAnimation.title) {
-			showFinished();
-		}
 		if (!QRect(0, contentTop(), width(), st::introStepHeight).intersects(clip)) {
 			return true;
 		}
 		return false;
 	}
-	if (!_coverAnimation.clipping.isEmpty()) {
-		p.setClipRect(_coverAnimation.clipping);
-	}
-
-	auto progress = (hasCover() ? anim::easeOutCirc(1., dt) : anim::linear(1., dt));
-	auto arrivingAlpha = progress;
-	auto departingAlpha = 1. - progress;
-	auto showCoverMethod = progress;
-	auto hideCoverMethod = progress;
-	auto coverTop = (hasCover() ? anim::interpolate(-st::introCoverHeight, 0, showCoverMethod) : anim::interpolate(0, -st::introCoverHeight, hideCoverMethod));
-
-	paintCover(p, coverTop);
-
-	auto positionReady = hasCover() ? showCoverMethod : hideCoverMethod;
-	_coverAnimation.title->paintFrame(p, positionReady, departingAlpha, arrivingAlpha);
-	_coverAnimation.description->paintFrame(p, positionReady, departingAlpha, arrivingAlpha);
-
-	paintContentSnapshot(p, _coverAnimation.contentSnapshotWas, departingAlpha, showCoverMethod);
-	paintContentSnapshot(p, _coverAnimation.contentSnapshotNow, arrivingAlpha, 1. - hideCoverMethod);
 
 	return true;
 }
@@ -386,98 +303,7 @@ void Step::fillSentCodeData(const MTPDauth_sentCode &data) {
 	});
 }
 
-void Step::showDescription() {
-	_description->show(anim::type::normal);
-}
 
-void Step::hideDescription() {
-	_description->hide(anim::type::normal);
-}
-
-void Step::paintContentSnapshot(QPainter &p, const QPixmap &snapshot, float64 alpha, float64 howMuchHidden) {
-	if (!snapshot.isNull()) {
-		const auto contentTop = anim::interpolate(
-			height() - (snapshot.height() / style::DevicePixelRatio()),
-			height(),
-			howMuchHidden);
-		if (contentTop < height()) {
-			p.setOpacity(alpha);
-			p.drawPixmap(
-				QPoint(contentLeft(), contentTop),
-				snapshot,
-				QRect(
-					0,
-					0,
-					snapshot.width(),
-					(height() - contentTop) * style::DevicePixelRatio()));
-		}
-	}
-}
-
-void Step::prepareCoverMask() {
-	if (!_coverMask.isNull()) return;
-
-	auto maskWidth = style::DevicePixelRatio();
-	auto maskHeight = st::introCoverHeight * style::DevicePixelRatio();
-	auto mask = QImage(maskWidth, maskHeight, QImage::Format_ARGB32_Premultiplied);
-	auto maskInts = reinterpret_cast<uint32*>(mask.bits());
-	Assert(mask.depth() == (sizeof(uint32) << 3));
-	auto maskIntsPerLineAdded = (mask.bytesPerLine() >> 2) - maskWidth;
-	Assert(maskIntsPerLineAdded >= 0);
-	auto realHeight = static_cast<float64>(maskHeight - 1);
-	for (auto y = 0; y != maskHeight; ++y) {
-		auto color = anim::color(st::introCoverTopBg, st::introCoverBottomBg, y / realHeight);
-		auto colorInt = anim::getPremultiplied(color);
-		for (auto x = 0; x != maskWidth; ++x) {
-			*maskInts++ = colorInt;
-		}
-		maskInts += maskIntsPerLineAdded;
-	}
-	_coverMask = Ui::PixmapFromImage(std::move(mask));
-}
-
-void Step::paintCover(QPainter &p, int top) {
-	auto coverHeight = top + st::introCoverHeight;
-	if (coverHeight > 0) {
-		p.drawPixmap(
-			QRect(0, 0, width(), coverHeight),
-			_coverMask,
-			QRect(
-				0,
-				-top * style::DevicePixelRatio(),
-				_coverMask.width(),
-				coverHeight * style::DevicePixelRatio()));
-	}
-
-	auto left = 0;
-	auto right = 0;
-	if (width() < st::introCoverMaxWidth) {
-		auto iconsMaxSkip = st::introCoverMaxWidth - st::introCoverLeft.width() - st::introCoverRight.width();
-		auto iconsSkip = st::introCoverIconsMinSkip + (iconsMaxSkip - st::introCoverIconsMinSkip) * (width() - st::introStepWidth) / (st::introCoverMaxWidth - st::introStepWidth);
-		auto outside = iconsSkip + st::introCoverLeft.width() + st::introCoverRight.width() - width();
-		left = -outside / 2;
-		right = -outside - left;
-	}
-	if (top < 0) {
-		auto shown = float64(coverHeight) / st::introCoverHeight;
-		auto leftShown = qRound(shown * (left + st::introCoverLeft.width()));
-		left = leftShown - st::introCoverLeft.width();
-		auto rightShown = qRound(shown * (right + st::introCoverRight.width()));
-		right = rightShown - st::introCoverRight.width();
-	}
-	st::introCoverLeft.paint(p, left, coverHeight - st::introCoverLeft.height(), width());
-	st::introCoverRight.paint(p, width() - right - st::introCoverRight.width(), coverHeight - st::introCoverRight.height(), width());
-
-	auto planeLeft = (width() - st::introCoverIcon.width()) / 2 - st::introCoverIconLeft;
-	auto planeTop = top + st::introCoverIconTop;
-	if (top < 0 && !_hasCover) {
-		auto deltaLeft = -qRound(float64(st::introPlaneWidth / st::introPlaneHeight) * top);
-//		auto deltaTop = top;
-		planeLeft += deltaLeft;
-	//	planeTop += top;
-	}
-	st::introCoverIcon.paint(p, planeLeft, planeTop, width());
-}
 
 int Step::contentLeft() const {
 	return (width() - st::introNextButton.width) / 2;
@@ -486,15 +312,6 @@ int Step::contentLeft() const {
 int Step::contentTop() const {
 	auto result = (height() - st::introHeight) / 2;
 	accumulate_max(result, st::introStepTopMin);
-	if (_hasCover) {
-		const auto currentHeightFull = result + st::introNextTop + st::introContentTopAdd;
-		auto added = 1. - std::clamp(
-			float64(currentHeightFull - st::windowMinHeight)
-				/ (st::introStepHeightFull - st::windowMinHeight),
-			0.,
-			1.);
-		result += qRound(added * st::introContentTopAdd);
-	}
 	return result;
 }
 
@@ -529,41 +346,11 @@ void Step::refreshError(const QString &text) {
 
 void Step::prepareShowAnimated(Step *after) {
 	setInnerFocus();
-	if (hasCover() || after->hasCover()) {
-		_coverAnimation = prepareCoverAnimation(after);
-		prepareCoverMask();
-	} else {
-		auto leftSnapshot = after->prepareSlideAnimation();
-		auto rightSnapshot = prepareSlideAnimation();
-		_slideAnimation = std::make_unique<Ui::SlideAnimation>();
-		_slideAnimation->setSnapshots(std::move(leftSnapshot), std::move(rightSnapshot));
-		_slideAnimation->setOverflowHidden(false);
-	}
-}
-
-Step::CoverAnimation Step::prepareCoverAnimation(Step *after) {
-	Ui::SendPendingMoveResizeEvents(this);
-
-	auto result = CoverAnimation();
-	result.title = Ui::FlatLabel::CrossFade(
-		after->_title,
-		_title,
-		st::introBg);
-	result.description = Ui::FlatLabel::CrossFade(
-		after->_description->entity(),
-		_description->entity(),
-		st::introBg,
-		after->_description->pos(),
-		_description->pos());
-	result.contentSnapshotWas = after->prepareContentSnapshot();
-	result.contentSnapshotNow = prepareContentSnapshot();
-	return result;
-}
-
-QPixmap Step::prepareContentSnapshot() {
-	auto otherTop = _description->y() + _description->height();
-	auto otherRect = myrtlrect(contentLeft(), otherTop, st::introStepWidth, height() - otherTop);
-	return Ui::GrabWidget(this, otherRect);
+	auto leftSnapshot = after->prepareSlideAnimation();
+	auto rightSnapshot = prepareSlideAnimation();
+	_slideAnimation = std::make_unique<Ui::SlideAnimation>();
+	_slideAnimation->setSnapshots(std::move(leftSnapshot), std::move(rightSnapshot));
+	_slideAnimation->setOverflowHidden(false);
 }
 
 QPixmap Step::prepareSlideAnimation() {
@@ -584,13 +371,7 @@ void Step::showAnimated(Animate animate) {
 			slideLeft,
 			[=] { update(0, contentTop(), width(), st::introStepHeight); },
 			st::introSlideDuration);
-	} else {
-		_a_show.start([this] { update(); }, 0., 1., st::introCoverDuration);
 	}
-}
-
-void Step::setShowAnimationClipping(QRect clipping) {
-	_coverAnimation.clipping = clipping;
 }
 
 void Step::setGoCallback(
@@ -625,17 +406,11 @@ bool Step::animating() const {
 		|| _a_show.animating();
 }
 
-bool Step::hasCover() const {
-	return _hasCover;
-}
-
 bool Step::hasBack() const {
 	return false;
 }
 
 void Step::activate() {
-	_title->show();
-	_description->show(anim::type::instant);
 	if (!_errorText.current().isEmpty()) {
 		_error->show(anim::type::instant);
 	}

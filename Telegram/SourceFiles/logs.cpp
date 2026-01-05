@@ -509,7 +509,7 @@ void writeDebug(const QString &v) {
 	_logsWrite(LogDataDebug, msg);
 
 #ifdef Q_OS_WIN
-	//OutputDebugString(reinterpret_cast<const wchar_t *>(msg.utf16()));
+	OutputDebugString(reinterpret_cast<const wchar_t *>(msg.utf16()));
 #elif defined Q_OS_MAC
 	//objc_outputDebugString(msg);
 #elif defined _DEBUG

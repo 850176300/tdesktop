@@ -50,8 +50,6 @@ SignupWidget::SignupWidget(
 
 	setErrorCentered(true);
 
-	setTitleText(tr::lng_signup_title());
-	setDescriptionText(tr::lng_signup_desc());
 	setMouseTracking(true);
 }
 

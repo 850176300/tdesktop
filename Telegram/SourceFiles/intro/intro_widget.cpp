@@ -46,6 +46,7 @@ https://github.com/telegramdesktop/tdesktop/blob/master/LEGAL
 #include "api/api_text_entities.h"
 #include "styles/style_layers.h"
 #include "styles/style_intro.h"
+#include "styles/style_window.h"
 #include "base/qt/qt_common_adapters.h"
 
 namespace Intro {
@@ -79,27 +80,53 @@ Widget::Widget(
 , _data(details::Data{ .controller = controller })
 , _nextStyle(&st::introNextButton)
 , _back(this, object_ptr<Ui::IconButton>(this, st::introBackButton))
+, _close(
+	this,
+	object_ptr<Ui::IconButton>(this, st::windowclose))
 , _settings(
 	this,
-	object_ptr<Ui::RoundButton>(
-		this,
-		tr::lng_menu_settings(),
-		st::defaultBoxButton))
+	object_ptr<Ui::IconButton>(this, st::windowsettings))
 , _next(
 	this,
 	object_ptr<Ui::RoundButton>(this, nullptr, *_nextStyle))
-, _connecting(std::make_unique<Window::ConnectionState>(
+, 	_connecting(std::make_unique<Window::ConnectionState>(
 		this,
 		account,
-		rpl::single(true))) {
+		rpl::single(true)))
+	, _backgroundWidget(this) {
 	controller->setDefaultFloatPlayerDelegate(floatPlayerDelegate());
+	
+	// 创建背景 widget
+	_backgroundWidget->setAttribute(Qt::WA_OpaquePaintEvent, true);
+	_backgroundWidget->lower(); // 置于最底层
+	
+	// 加载并渲染背景图片
+	_backgroundWidget->paintRequest(
+	) | rpl::on_next([=](const QRect &clip) {
+		QPainter p(_backgroundWidget.data());
+		const auto size = _backgroundWidget->size();
+		QPixmap bgImage;
+		if (bgImage.load(u":/gui/art/bg_login.png"_q)) {
+			auto scaled = bgImage.scaled(
+				size.width() * style::DevicePixelRatio(),
+				size.height() * style::DevicePixelRatio(),
+				Qt::KeepAspectRatioByExpanding,
+				Qt::SmoothTransformation);
+			scaled.setDevicePixelRatio(style::DevicePixelRatio());
+			const auto x = (size.width() - scaled.width() / style::DevicePixelRatio()) / 2;
+			const auto y = (size.height() - scaled.height() / style::DevicePixelRatio()) / 2;
+			p.drawPixmap(x, y, scaled);
+		} else {
+			// 如果图片加载失败，使用默认背景色
+			p.fillRect(clip, st::windowBg);
+		}
+	}, _backgroundWidget->lifetime());
 
 	getData()->country = ComputeNewAccountCountry();
 
 	_account->mtpValue(
 	) | rpl::on_next([=](not_null<MTP::Instance*> instance) {
 		_api.emplace(instance);
-		crl::on_main(this, [=] { createLanguageLink(); });
 	}, lifetime());
 
 	switch (point) {
@@ -116,7 +143,11 @@ Widget::Widget(
 	default: Unexpected("Enter point in Intro::Widget::Widget.");
 	}
 
-	setupStep();
+	_close->entity()->setClickedCallback([=] {
+		_data.controller->close();
+	});
+
+	//setupStep();
 	fixOrder();
 
 	if (_account->mtp().isTestMode()) {
@@ -131,10 +162,6 @@ Widget::Widget(
 		_testModeLabel->show(anim::type::instant);
 	}
 
-	Lang::CurrentCloudManager().firstLanguageSuggestion(
-	) | rpl::on_next([=] {
-		createLanguageLink();
-	}, lifetime());
 
 	_account->mtpUpdates(
 	) | rpl::on_next([=](const MTPUpdates &updates) {
@@ -144,10 +171,6 @@ Widget::Widget(
 	_back->entity()->setClickedCallback([=] { backRequested(); });
 	_back->entity()->setAccessibleName(tr::lng_go_back(tr::now));
 	_back->hide(anim::type::instant);
-
-	if (_changeLanguage) {
-		_changeLanguage->finishAnimating();
-	}
 
 	Lang::Updated(
 	) | rpl::on_next([=] {
@@ -227,11 +250,6 @@ bool Widget::floatPlayerHandleWheelEvent(QEvent *e) {
 	return false;
 }
 
-void Widget::refreshLang() {
-	_changeLanguage.destroy();
-	createLanguageLink();
-	InvokeQueued(this, [this] { updateControlsGeometry(); });
-}
 
 void Widget::handleUpdates(const MTPUpdates &updates) {
 	updates.match([&](const MTPDupdateShort &data) {
@@ -264,48 +282,12 @@ void Widget::handleUpdate(const MTPUpdate &update) {
 	}, [](const auto &) {});
 }
 
-void Widget::createLanguageLink() {
-	if (_changeLanguage
-		|| Core::App().domain().maybeLastOrSomeAuthedAccount()) {
-		return;
-	}
-
-	const auto createLink = [=](
-			const QString &text,
-			const QString &languageId) {
-		_changeLanguage.create(
-			this,
-			object_ptr<Ui::LinkButton>(this, text));
-		_changeLanguage->hide(anim::type::instant);
-		_changeLanguage->entity()->setClickedCallback([=] {
-			Lang::CurrentCloudManager().switchToLanguage(languageId);
-		});
-		_changeLanguage->toggle(
-			!_resetAccount && !_terms && _nextShown,
-			anim::type::normal);
-		updateControlsGeometry();
-	};
-
-	const auto currentId = Lang::LanguageIdOrDefault(Lang::Id());
-	const auto defaultId = Lang::DefaultLanguageId();
-	const auto suggested = Lang::CurrentCloudManager().suggestedLanguage();
-	if (currentId != defaultId) {
-		createLink(
-			Lang::GetOriginalValue(tr::lng_switch_to_this.base),
-			defaultId);
-	} else if (!suggested.isEmpty() && suggested != currentId && _api) {
-		_api->request(MTPlangpack_GetStrings(
-			MTP_string(Lang::CloudLangPackName()),
-			MTP_string(suggested),
-			MTP_vector<MTPstring>(1, MTP_string("lng_switch_to_this"))
-		)).done([=](const MTPVector<MTPLangPackString> &result) {
-			const auto strings = Lang::Instance::ParseStrings(result);
-			const auto i = strings.find(tr::lng_switch_to_this.base);
-			if (i != strings.end()) {
-				createLink(i->second, suggested);
-			}
-		}).send();
-	}
+void Widget::refreshLang() {
+	// 更新按钮的可访问性名称
+	_back->entity()->setAccessibleName(tr::lng_go_back(tr::now));
+	
+	// 更新控件几何，确保布局正确
+	InvokeQueued(this, [this] { updateControlsGeometry(); });
 }
 
 void Widget::checkUpdateStatus() {
@@ -322,8 +304,7 @@ void Widget::checkUpdateStatus() {
 		if (!_showAnimation) {
 			_update->setVisible(true);
 		}
-		const auto stepHasCover = getStep()->hasCover();
-		_update->toggle(!stepHasCover, anim::type::instant);
+		_update->toggle(true, anim::type::instant);
 		_update->entity()->setClickedCallback([] {
 			Core::checkReadyUpdate();
 			Core::Restart();
@@ -393,16 +374,8 @@ void Widget::historyMove(StackAction action, Animate animate) {
 	setupStep();
 
 	getStep()->prepareShowAnimated(wasStep);
-	if (wasStep->hasCover() != getStep()->hasCover()) {
-		_nextTopFrom = wasStep->contentTop() + st::introNextTop;
-		_controlsTopFrom = wasStep->hasCover() ? st::introCoverHeight : 0;
-		_coverShownAnimation.start(
-			[this] { updateControlsGeometry(); },
-			0.,
-			1.,
-			st::introCoverDuration,
-			wasStep->hasCover() ? anim::linear : anim::easeOutCirc);
-	}
+	_nextTopFrom = wasStep->contentTop() + st::introNextTop;
+	_controlsTopFrom = 0;
 
 	_stepLifetime.destroy();
 	if (action == StackAction::Forward || action == StackAction::Replace) {
@@ -413,13 +386,13 @@ void Widget::historyMove(StackAction action, Animate animate) {
 	}
 	_back->toggle(getStep()->hasBack(), anim::type::normal);
 
-	auto stepHasCover = getStep()->hasCover();
-	_settings->toggle(!stepHasCover, anim::type::normal);
+	_close->toggle(true, anim::type::normal);
+	_settings->toggle(true, anim::type::normal);
 	if (_testModeLabel) {
-		_testModeLabel->toggle(!stepHasCover, anim::type::normal);
+		_testModeLabel->toggle(true, anim::type::normal);
 	}
 	if (_update) {
-		_update->toggle(!stepHasCover, anim::type::normal);
+		_update->toggle(true, anim::type::normal);
 	}
 	setupNextButton();
 	if (_resetAccount) _resetAccount->show(anim::type::normal);
@@ -440,10 +413,11 @@ void Widget::hideAndDestroy(object_ptr<Ui::FadeWrap<Ui::RpWidget>> widget) {
 }
 
 void Widget::fixOrder() {
+	_backgroundWidget->lower(); // 确保背景始终在最底层
 	_next->raise();
 	if (_update) _update->raise();
-	if (_changeLanguage) _changeLanguage->raise();
 	_settings->raise();
+	_close->raise();
 	_back->raise();
 	floatPlayerRaiseAll();
 	_connecting->raise();
@@ -453,6 +427,7 @@ void Widget::moveToStep(Step *step, StackAction action, Animate animate) {
 	appendStep(step);
 	_back->raise();
 	_settings->raise();
+	_close->raise();
 	if (_update) {
 		_update->raise();
 	}
@@ -499,9 +474,6 @@ void Widget::showResetButton() {
 		updateControlsGeometry();
 	}
 	_resetAccount->show(anim::type::normal);
-	if (_changeLanguage) {
-		_changeLanguage->hide(anim::type::normal);
-	}
 }
 
 void Widget::showTerms() {
@@ -521,11 +493,6 @@ void Widget::showTerms() {
 		});
 		updateControlsGeometry();
 		_terms->hide(anim::type::instant);
-	}
-	if (_changeLanguage) {
-		_changeLanguage->toggle(
-			!_terms && !_resetAccount && _nextShown,
-			anim::type::normal);
 	}
 }
 
@@ -702,18 +669,13 @@ void Widget::showControls() {
 	_next->toggle(_nextShown, anim::type::instant);
 	_nextShownAnimation.stop();
 	_connecting->setForceHidden(false);
-	auto hasCover = getStep()->hasCover();
-	_settings->toggle(!hasCover, anim::type::instant);
+	_close->toggle(true, anim::type::instant);
+	_settings->toggle(true, anim::type::instant);
 	if (_testModeLabel) {
-		_testModeLabel->toggle(!hasCover, anim::type::instant);
+		_testModeLabel->toggle(true, anim::type::instant);
 	}
 	if (_update) {
-		_update->toggle(!hasCover, anim::type::instant);
-	}
-	if (_changeLanguage) {
-		_changeLanguage->toggle(
-			!_resetAccount && !_terms && _nextShown,
-			anim::type::instant);
+		_update->toggle(true, anim::type::instant);
 	}
 	if (_terms) {
 		_terms->show(anim::type::instant);
@@ -738,11 +700,6 @@ void Widget::setupNextButton() {
 	}) | rpl::on_next([=](bool visible) {
 		_next->toggle(visible, anim::type::normal);
 		_nextShown = visible;
-		if (_changeLanguage) {
-			_changeLanguage->toggle(
-				!_resetAccount && !_terms && _nextShown,
-				anim::type::normal);
-		}
 		_nextShownAnimation.start(
 			[=] { updateControlsGeometry(); },
 			_nextShown ? 0. : 1.,
@@ -755,10 +712,10 @@ void Widget::hideControls() {
 	getStep()->hide();
 	_next->hide(anim::type::instant);
 	_connecting->setForceHidden(true);
+	_close->hide(anim::type::instant);
 	_settings->hide(anim::type::instant);
 	if (_testModeLabel) _testModeLabel->hide(anim::type::instant);
 	if (_update) _update->hide(anim::type::instant);
-	if (_changeLanguage) _changeLanguage->hide(anim::type::instant);
 	if (_terms) _terms->hide(anim::type::instant);
 	_back->hide(anim::type::instant);
 }
@@ -799,6 +756,7 @@ void Widget::paintEvent(QPaintEvent *e) {
 	if (!trivial) {
 		p.setClipRect(e->rect());
 	}
+	
 	if (_showAnimation) {
 		_showAnimation->paintContents(p);
 		return;
@@ -807,6 +765,9 @@ void Widget::paintEvent(QPaintEvent *e) {
 }
 
 void Widget::resizeEvent(QResizeEvent *e) {
+	// 更新背景 widget 尺寸为全屏
+	_backgroundWidget->setGeometry(rect());
+	
 	if (_stepHistory.empty()) {
 		return;
 	}
@@ -820,43 +781,31 @@ void Widget::resizeEvent(QResizeEvent *e) {
 
 void Widget::updateControlsGeometry() {
 	const auto skip = st::introSettingsSkip;
-	const auto shown = _coverShownAnimation.value(1.);
-
-	const auto controlsTop = anim::interpolate(
-		_controlsTopFrom,
-		getStep()->hasCover() ? st::introCoverHeight : 0,
-		shown);
-	_settings->moveToRight(skip, controlsTop + skip);
+	const auto controlsTop = _controlsTopFrom;
+	_close->moveToRight(skip, controlsTop + skip);
+	_settings->moveToRight(skip + _close->width() + skip, controlsTop + skip);
 	if (_testModeLabel) {
 		_testModeLabel->moveToRight(
-			skip + _settings->width() + skip,
+			skip + _close->width() + skip + _settings->width() + skip,
 			_settings->y()
 				+ (_settings->height()
 				- _testModeLabel->height()) / 2);
 	}
 	if (_update) {
 		_update->moveToRight(
-			skip + _settings->width() + skip,
+			skip + _close->width() + skip + _settings->width() + skip,
 			_settings->y());
 	}
 	_back->moveToLeft(0, controlsTop);
 
 	auto nextTopTo = getStep()->contentTop() + st::introNextTop;
-	auto nextTop = anim::interpolate(_nextTopFrom, nextTopTo, shown);
+	auto nextTop = nextTopTo;
 	const auto shownAmount = _nextShownAnimation.value(_nextShown ? 1. : 0.);
 	const auto realNextTop = anim::interpolate(
 		nextTop + st::introNextSlide,
 		nextTop,
 		shownAmount);
 	_next->moveToLeft((width() - _next->width()) / 2, realNextTop);
-	getStep()->setShowAnimationClipping(shownAmount > 0
-		? QRect(0, 0, width(), realNextTop)
-		: QRect());
-	if (_changeLanguage) {
-		_changeLanguage->moveToLeft(
-			(width() - _changeLanguage->width()) / 2,
-			_next->y() + _next->height() + _changeLanguage->height());
-	}
 	if (_resetAccount) {
 		_resetAccount->moveToLeft(
 			(width() - _resetAccount->width()) / 2,

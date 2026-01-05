@@ -24,7 +24,7 @@ introCoverIcon: icon {
 introCoverIconLeft: 50px;
 introCoverIconTop: 46px;
 
-introSettingsSkip: 10px;
+introSettingsSkip: 0px;
 
 introPhotoTop: 10px;
 
@@ -75,6 +75,9 @@ introContentTopAdd: 30px;
 introStepHeightFull: 590px;
 introSlideDuration: 200;
 introCoverDuration: 200;
+
+introFieldCancel: defaultMultiSelectSearchCancel;
+
 
 introNextButton: RoundButton(defaultActiveButton) {
 	width: 300px;
@@ -193,3 +196,140 @@ introQrStepMargins: margins(20px, 8px, 0px, 0px);
 introQrSkipTop: 360px;
 introQrCenterSize: 44px;
 introQrPlane: icon {{ "intro_qr_plane", activeButtonFg }};
+
+
+
+introAccountInputSkipTop: 200px;
+introInputIconSkip: 12px;
+
+accountNormal: icon {{ "intro/ic_nickname_default-24x24", inputBorderFg}};
+accountActive: icon {{ "intro/ic_nickname_default-24x24", activeLineFg}};
+accountError: icon {{ "intro/ic_nickname_default-24x24", activeLineFgError}};
+passwordNormal: icon {{ "intro/ic_password_default-24x24", inputBorderFg}};
+passwordActive: icon {{ "intro/ic_password_default-24x24", activeLineFg}};
+passwordError: icon {{ "intro/ic_password_default-24x24", activeLineFgError}};
+
+IntroInputField{
+	textBg: color;
+	textBgActive: color; // Used only with borderRadius.
+	textFg: color;
+	textMargins: margins;
+	textAlign: align;
+
+	placeholderFg: color;
+	placeholderFgActive: color;
+	placeholderFgError: color;
+	placeholderMargins: margins;
+	placeholderAlign: align;
+	placeholderScale: double;
+	placeholderShift: pixels;
+	placeholderFont: font;
+
+	duration: int;
+	maxLength: int;
+
+	borderFg: color;
+	borderFgActive: color;
+	borderFgError: color;
+
+	border: pixels;
+	borderActive: pixels;
+	borderRadius: pixels;
+	borderDenominator: int;
+
+	style: TextStyle;
+	menu: PopupMenu;
+
+	width: pixels;
+	heightMin: pixels;
+	heightMax: pixels;
+	widthMin: pixels;
+
+	normalIcon: icon;
+	activeIcon: icon;
+	errorIcon: icon;
+}
+
+defaultIntroInputField: IntroInputField {
+	textBg: windowBg;
+	textBgActive: windowBg;
+	textFg: windowFg;
+	textMargins: margins(0px, 28px, 0px, 4px);
+	textAlign: align(topleft);
+
+	placeholderFg: windowSubTextFg;
+	placeholderFgActive: windowActiveTextFg;
+	placeholderFgError: attentionButtonFg;
+	placeholderMargins: margins(0px, 0px, 0px, 0px);
+	placeholderAlign: align(topleft);
+	placeholderScale: 0.9;
+	placeholderShift: -20px;
+	placeholderFont: font(semibold 14px);
+	duration: 150;
+	maxLength: 0;
+
+	borderFg: inputBorderFg;
+	borderFgActive: activeLineFg;
+	borderFgError: activeLineFgError;
+
+	border: 1px;
+	borderActive: 2px;
+	borderRadius: 0px;
+	borderDenominator: 1;
+
+	style: boxTextStyle;
+	menu: defaultPopupMenu;
+
+	heightMin: 40px;
+	heightMax: 40px;
+	width: 300px;
+}
+
+introInputSpace: 10px;
+
+introPasswordInputField: IntroInputField(defaultIntroInputField) {
+	textBg: windowBg;
+	textBgActive: windowBg;
+	textFg: windowFg;
+	textMargins: margins(48px, 10px, 48px, 0px);
+	textAlign: align(topleft);
+
+	placeholderFg: placeholderFg;
+	placeholderFgActive: placeholderFgActive;
+	placeholderFgError: placeholderFgActive;
+	placeholderMargins: margins(0px, 0px, 0px, 0px);
+	placeholderScale: 0.0;
+	placeholderAlign: align(topleft);
+	maxLength:16;
+
+
+	borderRadius: 6px;
+	normalIcon: passwordNormal;
+	activeIcon: passwordActive;
+	errorIcon: passwordError;
+}
+
+introAccountInputField: IntroInputField(defaultIntroInputField) {
+	textBg: windowBg;
+	textBgActive: windowBg;
+	textFg: windowFg;
+	textMargins: margins(48px, 10px, 48px, 0px);
+	textAlign: align(topleft);
+
+	placeholderFg: placeholderFg;
+	placeholderFgActive: placeholderFgActive;
+	placeholderFgError: placeholderFgActive;
+	placeholderMargins: margins(0px, 0px, 0px, 0px);
+	placeholderScale: 0.0;
+	placeholderAlign: align(topleft);
+	maxLength:24;
+
+
+	borderRadius: 6px;
+	normalIcon: accountNormal;
+	activeIcon: accountActive;
+	errorIcon: accountError;
+}
+
+
+

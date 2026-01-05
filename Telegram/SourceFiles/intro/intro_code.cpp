@@ -49,12 +49,6 @@ CodeWidget::CodeWidget(
 	_code->setDigitsCountMax(getData()->codeLength);
 
 	updateDescText();
-	setTitleText(_isFragment.value(
-	) | rpl::map([=](bool isFragment) {
-		return !isFragment
-			? rpl::single(Ui::FormatPhone(getData()->phone))
-			: tr::lng_intro_fragment_title();
-	}) | rpl::flatten_latest());
 
 	account->setHandleLoginCode([=](const QString &code) {
 		_code->setCode(code);
@@ -84,22 +78,6 @@ void CodeWidget::updateDescText() {
 	const auto byTelegram = getData()->codeByTelegram;
 	const auto isFragment = !getData()->codeByFragmentUrl.isEmpty();
 	_isFragment = isFragment;
-	const auto emailPattern = !getData()->emailPatternSetup.isEmpty()
-		? getData()->emailPatternSetup
-		: getData()->emailPatternLogin;
-	setDescriptionText(!emailPattern.isEmpty()
-		? tr::lng_intro_email_confirm_subtitle(
-			lt_email,
-			rpl::single(Ui::Text::WrapEmailPattern(emailPattern)),
-			tr::marked)
-		: isFragment
-		? tr::lng_intro_fragment_about(
-			lt_phone_number,
-			rpl::single(
-				TextWithEntities::Simple(Ui::FormatPhone(getData()->phone))),
-			tr::rich)
-		: (byTelegram ? tr::lng_code_from_telegram : tr::lng_code_desc)(
-			tr::rich));
 	if (getData()->codeByTelegram) {
 		_noTelegramCode->show();
 		_callTimer.cancel();

@@ -105,11 +105,27 @@ MainWindow::MainWindow(not_null<Window::Controller*> controller)
 	}, lifetime());
 
 	setAttribute(Qt::WA_OpaquePaintEvent);
+	setTitleStyle(st::borderlessWindowTitle);
+	setBodyTitleArea([=](QPoint) {
+		return Ui::WindowTitleHitTestFlag::Move;
+	});
 }
 
 void MainWindow::initHook() {
 	Platform::MainWindow::initHook();
 	QCoreApplication::instance()->installEventFilter(this);
+}
+
+void MainWindow::setupWindowBorderless(bool borderless){
+	if (windowHandle()){
+		windowHandle()->setFlag(Qt::FramelessWindowHint, borderless);
+	}else{
+		shownValue() | rpl::filter([=](bool shown) {
+			return shown && windowHandle();
+		}) | rpl::take(1) | rpl::on_next([=] {
+			windowHandle()->setFlag(Qt::FramelessWindowHint, borderless);
+		}, lifetime());
+	}
 }
 
 void MainWindow::applyInitialWorkMode() {
@@ -283,6 +299,7 @@ void MainWindow::setupIntro(
 	auto animated = (_main || _passcodeLock || _setupEmailLock);
 
 	destroyLayer();
+	setFixedSize(QSize(232, 325)); //fixed login window size
 	auto created = object_ptr<Intro::Widget>(
 		bodyWidget(),
 		&controller(),
@@ -307,6 +324,7 @@ void MainWindow::setupIntro(
 		}
 	}
 	fixOrder();
+	setupWindowBorderless(true);
 }
 
 void MainWindow::setupMain(
