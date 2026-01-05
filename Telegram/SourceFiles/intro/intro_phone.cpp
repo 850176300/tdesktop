@@ -89,8 +89,6 @@ PhoneWidget::PhoneWidget(
 	connect(_phone, &Ui::PhonePartInput::changed, [=] { phoneChanged(); });
 	connect(_code, &Ui::CountryCodeInput::changed, [=] { phoneChanged(); });
 
-	setTitleText(tr::lng_phone_title());
-	setDescriptionText(tr::lng_phone_desc());
 	getData()->updated.events(
 	) | rpl::on_next([=] {
 		countryChanged();

@@ -10,8 +10,8 @@ using "ui/widgets/widgets.style";
 using "chat_helpers/chat_helpers.style";
 using "boxes/boxes.style"; // UserpicButton
 
-windowMinWidth: 380px;
-windowMinHeight: 480px;
+windowMinWidth: 320px;
+windowMinHeight: 450px;
 windowDefaultWidth: 800px;
 windowDefaultHeight: 600px;
 windowBigDefaultWidth: 1024px;
@@ -394,3 +394,122 @@ macCautionIconSize: 16;
 macWindowRoundRadius: 10;
 macWindowShadowTopLeft: icon {{ "mac_window_shadow_top_left", windowShadowFg }};
 macTrayIcon: icon {{ "mac_tray_icon", windowFg }};
+
+introWindowButtonWidth: 36px;
+introWindowButtonHeight: 24px;
+
+windowTitleButtonIntro: IconButton(windowTitleButton) {
+	width: introWindowButtonWidth;
+	height: introWindowButtonHeight;
+}
+
+introWindowButtonSize:size(introWindowButtonWidth, introWindowButtonHeight);
+
+windowclose: IconButton(windowTitleButtonIntro) {
+	icon: icon {
+		{ introWindowButtonSize, transparent },
+		{ "title_button_close", titleButtonCloseFg },
+	};
+	iconOver: icon {
+		{ introWindowButtonSize, titleButtonCloseBgOver },
+		{ "title_button_close", titleButtonCloseFgOver },
+	};
+}
+
+
+windowsettings: IconButton(windowTitleButtonIntro) {
+	icon: icon {
+		{ introWindowButtonSize, transparent },
+		{ "window/settings", titleButtonCloseFg },
+	};
+	iconOver: icon {
+		{ introWindowButtonSize, titleButtonBgOver },
+		{ "window/settings", titleButtonFgOver },
+	};
+	iconPosition: point(12px, 0px);
+}
+
+borderlessWindowTitleHeight: 0px;
+
+borderlessWindowTitle: WindowTitle(defaultWindowTitle) {
+	height: borderlessWindowTitleHeight;
+	bg: titleBg;
+	bgActive: titleBgActive;
+	fg: titleFg;
+	fgActive: titleFgActive;
+	style: TextStyle(defaultTextStyle) {
+		font: font(semibold 12px);
+	}
+	shadow: true;
+	oneSideControls: false;
+	minimize: IconButton(windowTitleButton) {
+		icon: icon {
+			{ windowTitleButtonSize, titleButtonBg },
+			{ "title_button_minimize", titleButtonFg },
+		};
+		iconOver: icon {
+			{ windowTitleButtonSize, titleButtonBgOver },
+			{ "title_button_minimize", titleButtonFgOver },
+		};
+	}
+	minimizeIconActive: icon {
+		{ windowTitleButtonSize, titleButtonBgActive },
+		{ "title_button_minimize", titleButtonFgActive },
+	};
+	minimizeIconActiveOver: icon {
+		{ windowTitleButtonSize, titleButtonBgActiveOver },
+		{ "title_button_minimize", titleButtonFgActiveOver },
+	};
+	maximize: IconButton(windowTitleButton) {
+		icon: icon {
+			{ windowTitleButtonSize, titleButtonBg },
+			{ "title_button_maximize", titleButtonFg },
+		};
+		iconOver: icon {
+			{ windowTitleButtonSize, titleButtonBgOver },
+			{ "title_button_maximize", titleButtonFgOver },
+		};
+	}
+	maximizeIconActive: icon {
+		{ windowTitleButtonSize, titleButtonBgActive },
+		{ "title_button_maximize", titleButtonFgActive },
+	};
+	maximizeIconActiveOver: icon {
+		{ windowTitleButtonSize, titleButtonBgActiveOver },
+		{ "title_button_maximize", titleButtonFgActiveOver },
+	};
+	restoreIcon: icon {
+		{ windowTitleButtonSize, titleButtonBg },
+		{ "title_button_restore", titleButtonFg },
+	};
+	restoreIconOver: icon {
+		{ windowTitleButtonSize, titleButtonBgOver },
+		{ "title_button_restore", titleButtonFgOver },
+	};
+	restoreIconActive: icon {
+		{ windowTitleButtonSize, titleButtonBgActive },
+		{ "title_button_restore", titleButtonFgActive },
+	};
+	restoreIconActiveOver: icon {
+		{ windowTitleButtonSize, titleButtonBgActiveOver },
+		{ "title_button_restore", titleButtonFgActiveOver },
+	};
+	close: IconButton(windowTitleButtonClose) {
+		icon: icon {
+			{ windowTitleButtonSize, titleButtonCloseBg },
+			{ "title_button_close", titleButtonCloseFg },
+		};
+		iconOver: icon {
+			{ windowTitleButtonSize, titleButtonCloseBgOver },
+			{ "title_button_close", titleButtonCloseFgOver },
+		};
+	}
+	closeIconActive: icon {
+		{ windowTitleButtonSize, titleButtonCloseBgActive },
+		{ "title_button_close", titleButtonCloseFgActive },
+	};
+	closeIconActiveOver: icon {
+		{ windowTitleButtonSize, titleButtonCloseBgActiveOver },
+		{ "title_button_close", titleButtonCloseFgActiveOver },
+	};
+}

@@ -193,8 +193,6 @@ QrWidget::QrWidget(
 	not_null<Data*> data)
 : Step(parent, account, data)
 , _refreshTimer([=] { refreshCode(); }) {
-	setTitleText(rpl::single(QString()));
-	setDescriptionText(rpl::single(QString()));
 	setErrorCentered(true);
 
 	cancelNearestDcRequest();

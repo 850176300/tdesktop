@@ -41,18 +41,17 @@ public:
 	Step(
 		QWidget *parent,
 		not_null<Main::Account*> account,
-		not_null<Data*> data,
-		bool hasCover = false);
+		not_null<Data*> data);
 	~Step();
 
 	QAccessible::Role accessibilityRole() override {
 		return QAccessible::Role::Dialog;
 	}
 	QString accessibilityName() override {
-		return _titleText.current();
+		return QString();
 	}
 	QString accessibilityDescription() override {
-		return _descriptionText.current().text;
+		return QString();
 	}
 
 	[[nodiscard]] Main::Account &account() const {
@@ -82,9 +81,7 @@ public:
 	void showAnimated(Animate animate);
 	void showFast();
 	[[nodiscard]] bool animating() const;
-	void setShowAnimationClipping(QRect clipping);
 
-	[[nodiscard]] bool hasCover() const;
 	[[nodiscard]] virtual bool hasBack() const;
 	virtual void activate();
 	virtual void cancelled();
@@ -109,14 +106,10 @@ protected:
 	void paintEvent(QPaintEvent *e) override;
 	void resizeEvent(QResizeEvent *e) override;
 
-	void setTitleText(rpl::producer<QString> titleText);
-	void setDescriptionText(v::text::data &&descriptionText);
 	bool paintAnimated(QPainter &p, QRect clip);
 
 	void fillSentCodeData(const MTPDauth_sentCode &type);
 
-	void showDescription();
-	void hideDescription();
 
 	[[nodiscard]] not_null<Data*> getData() const {
 		return _data;
@@ -159,64 +152,33 @@ protected:
 	virtual int errorTop() const;
 
 private:
-	struct CoverAnimation {
-		CoverAnimation() = default;
-		CoverAnimation(CoverAnimation &&other) = default;
-		CoverAnimation &operator=(CoverAnimation &&other) = default;
-		~CoverAnimation();
-
-		std::unique_ptr<Ui::CrossFadeAnimation> title;
-		std::unique_ptr<Ui::CrossFadeAnimation> description;
-
-		// From content top till the next button top.
-		QPixmap contentSnapshotWas;
-		QPixmap contentSnapshotNow;
-
-		QRect clipping;
-	};
 	void updateLabelsPosition();
-	void paintContentSnapshot(
-		QPainter &p,
-		const QPixmap &snapshot,
-		float64 alpha,
-		float64 howMuchHidden);
 	void refreshError(const QString &text);
 
 	void goNext(Step *step);
 	void goReplace(Step *step, Animate animate);
 
-	[[nodiscard]] CoverAnimation prepareCoverAnimation(Step *step);
-	[[nodiscard]] QPixmap prepareContentSnapshot();
 	[[nodiscard]] QPixmap prepareSlideAnimation();
 	void showFinished();
-
-	void prepareCoverMask();
-	void paintCover(QPainter &p, int top);
 
 	const not_null<Main::Account*> _account;
 	const not_null<Data*> _data;
 	mutable std::optional<MTP::Sender> _api;
 
-	bool _hasCover = false;
 	Fn<void(Step *step, StackAction action, Animate animate)> _goCallback;
 	Fn<void()> _showResetCallback;
 	Fn<void()> _showTermsCallback;
 	Fn<void()> _cancelNearestDcCallback;
 	Fn<void(Fn<void()> callback)> _acceptTermsCallback;
 
-	rpl::variable<QString> _titleText;
-	object_ptr<Ui::FlatLabel> _title;
-	rpl::variable<TextWithEntities> _descriptionText;
-	object_ptr<Ui::FadeWrap<Ui::FlatLabel>> _description;
 
 	bool _errorCentered = false;
 	rpl::variable<QString> _errorText;
 	object_ptr<Ui::FadeWrap<Ui::FlatLabel>> _error = { nullptr };
 
 	Ui::Animations::Simple _a_show;
-	CoverAnimation _coverAnimation;
 	std::unique_ptr<Ui::SlideAnimation> _slideAnimation;
-	QPixmap _coverMask;
+	
 
 };
 

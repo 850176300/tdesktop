@@ -11,6 +11,7 @@ https://github.com/telegramdesktop/tdesktop/blob/master/LEGAL
 #include "storage/storage_account.h"
 #include "storage/details/storage_file_utilities.h"
 #include "storage/details/storage_settings_scheme.h"
+#include "base/file_lock.h"
 #include "data/data_session.h"
 #include "data/data_document.h"
 #include "data/data_document_media.h"
@@ -363,7 +364,25 @@ void start() {
 	// We dropped old test authorizations when migrated to multi auth.
 	//const auto name = cTestMode() ? u"settings_test"_q : u"settings"_q;
 	const auto name = u"settings"_q;
+	
+	// Use file lock for multi-process safe reading
+	QFile settingsFile(_basePath + name + 's');
+	if (!settingsFile.exists()) {
+		settingsFile.setFileName(_basePath + name + '0');
+	}
+	base::FileLock readLock;
+	bool readLocked = false;
+	if (settingsFile.exists()) {
+		readLocked = readLock.lock(settingsFile, QIODevice::ReadOnly);
+		if (!readLocked) {
+			LOG(("App Warning: Could not acquire read lock for settings file, proceeding without lock"));
+		}
+	}
+	
 	if (!ReadFile(settingsData, name, _basePath)) {
+		if (readLocked) {
+			readLock.unlock();
+		}
 		_readOldSettings(true, context);
 		_readOldUserSettings(false, context); // needed further in _readUserSettings
 		_readOldMtpData(false, context); // needed further in _readMtpData
@@ -378,11 +397,17 @@ void start() {
 	QByteArray salt, settingsEncrypted;
 	settingsData.stream >> salt >> settingsEncrypted;
 	if (!CheckStreamStatus(settingsData.stream)) {
+		if (readLocked) {
+			readLock.unlock();
+		}
 		return writeSettings();
 	}
 
 	if (salt.size() != LocalEncryptSaltSize) {
 		LOG(("App Error: bad salt in settings file, size: %1").arg(salt.size()));
+		if (readLocked) {
+			readLock.unlock();
+		}
 		return writeSettings();
 	}
 	SettingsKey = CreateLegacyLocalKey(QByteArray(), salt);
@@ -390,6 +415,9 @@ void start() {
 	EncryptedDescriptor settings;
 	if (!DecryptLocal(settings, settingsEncrypted, SettingsKey)) {
 		LOG(("App Error: could not decrypt settings from settings file..."));
+		if (readLocked) {
+			readLock.unlock();
+		}
 		return writeSettings();
 	}
 
@@ -398,10 +426,16 @@ void start() {
 		quint32 blockId;
 		settings.stream >> blockId;
 		if (!CheckStreamStatus(settings.stream)) {
+			if (readLocked) {
+				readLock.unlock();
+			}
 			return writeSettings();
 		}
 
 		if (!ReadSetting(blockId, settings.stream, settingsData.version, context)) {
+			if (readLocked) {
+				readLock.unlock();
+			}
 			return writeSettings();
 		}
 	}
@@ -422,6 +456,11 @@ void start() {
 	}
 
 	readLangPack();
+	
+	// Release read lock if acquired
+	if (readLocked) {
+		readLock.unlock();
+	}
 }
 
 void writeSettings() {
@@ -444,7 +483,18 @@ void writeSettings() {
 	// We dropped old test authorizations when migrated to multi auth.
 	//const auto name = cTestMode() ? u"settings_test"_q : u"settings"_q;
 	const auto name = u"settings"_q;
-	FileWriteDescriptor settings(name, _basePath);
+	
+	// Use file lock for multi-process safe writing
+	QFile settingsFile(_basePath + name + 's');
+	base::FileLock writeLock;
+	const auto writeLocked = writeLock.lock(settingsFile, QIODevice::WriteOnly);
+	if (!writeLocked) {
+		LOG(("App Error: Could not acquire write lock for settings file"));
+		return;
+	}
+	
+	// Use sync write to ensure the file is written before releasing the lock
+	FileWriteDescriptor settings(name, _basePath, true);
 	if (_settingsSalt.isEmpty() || !SettingsKey) {
 		_settingsSalt.resize(LocalEncryptSaltSize);
 		base::RandomFill(_settingsSalt.data(), _settingsSalt.size());
@@ -455,6 +505,7 @@ void writeSettings() {
 	if (!_settingsWriteAllowed) {
 		EncryptedDescriptor data(0);
 		settings.writeEncrypted(data, SettingsKey);
+		writeLock.unlock();
 		return;
 	}
 	const auto configSerialized = LookupFallbackConfig().serialize();
@@ -511,6 +562,11 @@ void writeSettings() {
 	}
 
 	settings.writeEncrypted(data, SettingsKey);
+	
+	// FileWriteDescriptor destructor will call finish() which writes the file synchronously
+	// when sync=true. The lock is released after settings goes out of scope,
+	// ensuring the write completes before another process can acquire the lock.
+	// Note: writeLock will be released when this function returns.
 }
 
 void rewriteSettingsIfNeeded() {

@@ -1165,10 +1165,16 @@ PRIVATE
     inline_bots/inline_results_inner.h
     inline_bots/inline_results_widget.cpp
     inline_bots/inline_results_widget.h
+    intro/intro_account_input.cpp
+    intro/intro_account_input.h
     intro/intro_code.cpp
     intro/intro_code.h
     intro/intro_email.cpp
     intro/intro_email.h
+    intro/intro_input_field.cpp
+    intro/intro_input_field.h
+    intro/intro_password_input.cpp
+    intro/intro_password_input.h
     intro/intro_password_check.cpp
     intro/intro_password_check.h
     intro/intro_phone.cpp

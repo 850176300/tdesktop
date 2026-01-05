@@ -118,6 +118,7 @@ protected:
 	void clearWidgetsHook() override;
 
 private:
+	void setupWindowBorderless(bool borderless);
 	void applyInitialWorkMode();
 	void ensureLayerCreated();
 	void destroyLayer();

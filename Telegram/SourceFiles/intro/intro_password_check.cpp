@@ -52,7 +52,6 @@ PasswordCheckWidget::PasswordCheckWidget(
 		hideError();
 	}, _codeField->lifetime());
 
-	setTitleText(tr::lng_signin_title());
 	updateDescriptionText();
 
 	if (_passwordState.hint.isEmpty()) {
@@ -348,14 +347,6 @@ void PasswordCheckWidget::showReset() {
 }
 
 void PasswordCheckWidget::updateDescriptionText() {
-	auto pwdHidden = _pwdField->isHidden();
-	auto emailPattern = _emailPattern;
-	setDescriptionText(pwdHidden
-		? tr::lng_signin_recover_desc(
-			lt_email,
-			rpl::single(Ui::Text::WrapEmailPattern(emailPattern)),
-			tr::marked)
-		: tr::lng_signin_desc(tr::marked));
 }
 
 void PasswordCheckWidget::submit() {
