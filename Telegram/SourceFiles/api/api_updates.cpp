@@ -2745,20 +2745,6 @@ void Updates::feedUpdate(const MTPUpdate &update) {
 		});
 	} break;
 
-	////// Cloud langpacks
-	case mtpc_updateLangPack: {
-		const auto &data = update.c_updateLangPack();
-		Lang::CurrentCloudManager().applyLangPackDifference(data.vdifference());
-	} break;
-
-	case mtpc_updateLangPackTooLong: {
-		const auto &data = update.c_updateLangPackTooLong();
-		const auto code = qs(data.vlang_code());
-		if (!code.isEmpty()) {
-			Lang::CurrentCloudManager().requestLangPackDifference(code);
-		}
-	} break;
-
 	////// Cloud themes
 	case mtpc_updateTheme: {
 		const auto &data = update.c_updateTheme();

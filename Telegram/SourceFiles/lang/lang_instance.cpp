@@ -665,7 +665,7 @@ void HandleString(
 
 void Instance::applyDifference(
 		Pack pack,
-		const MTPDlangPackDifference &difference) {
+		const LanguageData &difference) {
 	switch (pack) {
 	case Pack::Current:
 		applyDifferenceToMe(difference);
@@ -680,18 +680,12 @@ void Instance::applyDifference(
 }
 
 void Instance::applyDifferenceToMe(
-		const MTPDlangPackDifference &difference) {
-	Expects(LanguageIdOrDefault(_id) == qs(difference.vlang_code()));
-	Expects(difference.vfrom_version().v <= _version);
+		const LanguageData &difference) {
+	Expects(LanguageIdOrDefault(_id) == difference.langCode);
+	Expects(difference.version <= _version);
 
-	_version = difference.vversion().v;
-	for (const auto &string : difference.vstrings().v) {
-		HandleString(string, [&](auto &&key, auto &&value) {
-			applyValue(key, value);
-		}, [&](auto &&key) {
-			resetValue(key);
-		});
-	}
+	_version = difference.version;
+	loadFromContent(difference.stringsContent);
 	if (!_derived) {
 		_updated.fire({});
 	} else {

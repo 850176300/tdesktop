@@ -57,4 +57,11 @@
     <file alias="default_shortcuts-custom.json">../../default_shortcuts-custom.json</file>
     <file alias="org.telegram.desktop.desktop">../../../../lib/xdg/org.telegram.desktop.desktop</file>
   </qresource>
+  <qresource prefix="/lang">
+    <file alias="languages.json">../../langs/languages.json</file>
+    <file alias="lang.strings">../../langs/lang.strings</file>
+    <file alias="zh-CN.strings">../../langs/zh-CN.strings</file>
+    <file alias="vi.strings">../../langs/vi.strings</file>
+    <file alias="th.strings">../../langs/th.strings</file>
+  </qresource>
 </RCC>

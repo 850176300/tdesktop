@@ -19,8 +19,7 @@ namespace Lang {
 class Instance;
 enum class Pack;
 struct Language;
-
-Language ParseLanguage(const MTPLangPackLanguage &data);
+struct LanguageData;
 
 class CloudManager : public base::has_weak_ptr {
 public:
@@ -35,7 +34,7 @@ public:
 	[[nodiscard]] rpl::producer<> languageListChanged() const;
 	[[nodiscard]] rpl::producer<> firstLanguageSuggestion() const;
 	void requestLangPackDifference(const QString &langId);
-	void applyLangPackDifference(const MTPLangPackDifference &difference);
+	void applyLangPackDifference(const LanguageData &difference);
 	void setCurrentVersions(int version, int baseVersion);
 
 	void resetToDefault();
@@ -54,8 +53,6 @@ public:
 		Fn<void(const QString &)> callback);
 
 private:
-	mtpRequestId &packRequestId(Pack pack);
-	mtpRequestId packRequestId(Pack pack) const;
 	Pack packTypeFromId(const QString &id) const;
 	void requestLangPackDifference(Pack pack);
 	bool canApplyWithoutRestart(const QString &id) const;
@@ -69,9 +66,9 @@ private:
 	Language findOfferedLanguage() const;
 
 	void requestLanguageAndSwitch(const QString &id, bool warning);
-	void applyLangPackData(Pack pack, const MTPDlangPackDifference &data);
+	void applyLangPackData(Pack pack, const LanguageData &data);
 	void switchLangPackId(const Language &data);
-	void changeIdAndReInitConnection(const Language &data);
+	void changeLanguageId(const Language &data);
 
 	void sendSwitchingToLanguageRequest();
 	void resendPendingValueRequests();
@@ -80,9 +77,6 @@ private:
 	std::optional<MTP::Sender> _api;
 	Instance &_langpack;
 	Languages _languages;
-	mtpRequestId _langPackRequestId = 0;
-	mtpRequestId _langPackBaseRequestId = 0;
-	mtpRequestId _languagesRequestId = 0;
 
 	QString _offerSwitchToId;
 	bool _restartAfterSwitch = false;
@@ -90,14 +84,12 @@ private:
 	QString _suggestedLanguage;
 	bool _languageWasSuggested = false;
 
-	mtpRequestId _switchingToLanguageRequest = 0;
 	QString _switchingToLanguageId;
 	bool _switchingToLanguageWarning = false;
 
-	mtpRequestId _getKeysForSwitchRequestId = 0;
 
 	struct ValueRequest {
-		mtpRequestId requestId = 0;
+		int requestId = 0;
 		Fn<void(const QString &)> callback;
 	};
 	base::flat_map<QString, ValueRequest> _getValueForLangRequests;

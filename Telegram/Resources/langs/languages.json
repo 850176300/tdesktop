@@ -1,0 +1,37 @@
+{
+  "languages": [
+    {
+      "id": "en",
+      "pluralId": "en",
+      "baseId": "",
+      "name": "English",
+      "nativeName": "English",
+      "langFile": ":/lang/lang.strings"
+    },
+    {
+      "id": "zh-CN",
+      "pluralId": "zh",
+      "baseId": "",
+      "name": "Chinese (Simplified)",
+      "nativeName": "简体中文",
+      "langFile": ":/lang/zh-CN.strings"
+    },
+    {
+      "id": "vi",
+      "pluralId": "vi",
+      "baseId": "",
+      "name": "Vietnamese",
+      "nativeName": "Tiếng Việt",
+      "langFile": ":/lang/vi.strings"
+    },
+    {
+      "id": "th",
+      "pluralId": "th",
+      "baseId": "",
+      "name": "Thai",
+      "nativeName": "ไทย",
+      "langFile": ":/lang/th.strings"
+    }
+  ]
+}
+

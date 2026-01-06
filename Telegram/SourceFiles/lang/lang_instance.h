@@ -21,6 +21,13 @@ struct Language {
 	QString baseId;
 	QString name;
 	QString nativeName;
+	QString langFile;
+};
+
+struct LanguageData {
+	QString langCode;
+	QByteArray stringsContent;
+	int version = 0;
 };
 
 inline bool operator==(const Language &a, const Language &b) {
@@ -79,7 +86,7 @@ public:
 
 	void applyDifference(
 		Pack pack,
-		const MTPDlangPackDifference &difference);
+		const LanguageData &difference);
 	static std::map<ushort, QString> ParseStrings(
 		const MTPVector<MTPLangPackString> &strings);
 
@@ -108,7 +115,7 @@ public:
 private:
 	void setBaseId(const QString &baseId, const QString &pluralId);
 
-	void applyDifferenceToMe(const MTPDlangPackDifference &difference);
+	void applyDifferenceToMe(const LanguageData &difference);
 	void applyValue(const QByteArray &key, const QByteArray &value);
 	void resetValue(const QByteArray &key);
 	void reset(const Language &language);

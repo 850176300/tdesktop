@@ -1187,17 +1187,40 @@ void readLangPack() {
 }
 
 void writeLangPack() {
+	if (_basePath.isEmpty()) {
+		LOG(("App Error: _basePath is empty in writeLangPack()"));
+		return;
+	}
+
 	auto langpack = Lang::GetInstance().serialize();
 	if (!_langPackKey) {
 		_langPackKey = GenerateKey(_basePath);
 		writeSettings();
 	}
 
+	// Use file lock for multi-process safe writing
+	const auto filePart = ToFilePart(_langPackKey);
+	QFile langPackFile(_basePath + filePart + 's');
+	if (!langPackFile.exists()) {
+		langPackFile.setFileName(_basePath + filePart + '0');
+	}
+	base::FileLock writeLock;
+	const auto writeLocked = writeLock.lock(langPackFile, QIODevice::WriteOnly);
+	if (!writeLocked) {
+		LOG(("App Error: Could not acquire write lock for lang pack file"));
+		return;
+	}
+
+	// Use sync write to ensure the file is written before releasing the lock
 	EncryptedDescriptor data(Serialize::bytearraySize(langpack));
 	data.stream << langpack;
 
-	FileWriteDescriptor file(_langPackKey, _basePath);
+	FileWriteDescriptor file(_langPackKey, _basePath, true);
 	file.writeEncrypted(data, SettingsKey);
+	
+	// FileWriteDescriptor destructor will call finish() which writes the file synchronously
+	// when sync=true. The lock is released after file goes out of scope,
+	// ensuring the write completes before another process can acquire the lock.
 }
 
 void saveRecentLanguages(const std::vector<Lang::Language> &list) {
