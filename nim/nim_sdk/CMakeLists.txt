@@ -11,8 +11,7 @@ if (DESKTOP_APP_USE_PACKAGED)
     target_link_libraries(external_nim_sdk INTERFACE nim_sdk::nim_sdk)
     return()
 endif()
-include(validate_nim_dll.cmake)
-validate_nim_dll(external_nim_sdk)
+
 
 add_library(external_nim_sdk STATIC IMPORTED GLOBAL)
 add_library(desktop-app::external_nim_sdk ALIAS external_nim_sdk)

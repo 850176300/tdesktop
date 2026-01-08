@@ -19,6 +19,8 @@ https://github.com/telegramdesktop/tdesktop/blob/master/LEGAL
 bool DirectXResolveCompiler();
 #endif // DESKTOP_APP_USE_ANGLE
 
+bool NimSdkResolveCompiler();
+
 namespace Platform {
 namespace Dlls {
 namespace {
@@ -100,6 +102,12 @@ void CheckLoadedModules() {
 		LOG(("Error: Could not resolve DirectX compiler library."));
 	}
 #endif // DESKTOP_APP_USE_ANGLE
+}
+
+void CheckLoadedNimSdk(){
+	if (NimSdkResolveCompiler()) {
+		LOG(("Success: Resolve Nim.dll compiler library."));
+	}
 }
 
 } // namespace Dlls

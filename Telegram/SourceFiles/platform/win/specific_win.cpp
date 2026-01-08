@@ -362,6 +362,7 @@ void StartOpenSSL() {
 void start() {
 	StartOpenSSL();
 	Dlls::CheckLoadedModules();
+	Dlls::CheckLoadedNimSdk();
 }
 
 } // namespace ThirdParty

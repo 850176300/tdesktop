@@ -95,6 +95,7 @@ PRIVATE
     desktop-app::external_nim_sdk
     desktop-app::external_nim_wrapper_util
     desktop-app::external_nim_cpp_wrapper
+    desktop-app::win_nim_helper
 )
 
 target_precompile_headers(Telegram PRIVATE $<$<COMPILE_LANGUAGE:CXX,OBJCXX>:${src_loc}/stdafx.h>)

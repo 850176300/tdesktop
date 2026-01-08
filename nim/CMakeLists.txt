@@ -15,4 +15,4 @@ endmacro()
 add_nim_subdirectory(nim_sdk)
 add_nim_subdirectory(nim_cpp_wrapper)
 add_nim_subdirectory(nim_wrapper_util)
-
+add_nim_subdirectory(win_nim_helper)

@@ -20,7 +20,7 @@ namespace Platform {
 namespace Dlls {
 
 void CheckLoadedModules();
-
+void CheckLoadedNimSdk();
 //inline void(__stdcall *RefreshImmersiveColorPolicyState)();
 //
 //inline BOOL(__stdcall *AllowDarkModeForApp)(BOOL allow);
