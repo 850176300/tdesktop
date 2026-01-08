@@ -22,6 +22,7 @@ bool DirectXResolveCompiler();
 namespace Platform {
 namespace Dlls {
 namespace {
+BOOL (__stdcall *SetDefaultDllDirectories)(_In_ DWORD DirectoryFlags);
 
 struct SafeIniter {
 	SafeIniter();
@@ -29,7 +30,10 @@ struct SafeIniter {
 
 SafeIniter::SafeIniter() {
 	base::Platform::InitDynamicLibraries();
-
+	const auto kernel = LoadLibrary(L"kernel32.dll");
+	if (LOAD_SYMBOL(kernel, SetDefaultDllDirectories)) {
+		SetDefaultDllDirectories(LOAD_LIBRARY_SEARCH_SYSTEM32 | LOAD_LIBRARY_SEARCH_USER_DIRS);
+	}
 	const auto LibShell32 = LoadLibrary(L"shell32.dll");
 	LOAD_SYMBOL(LibShell32, SHAssocEnumHandlers);
 	LOAD_SYMBOL(LibShell32, SHCreateItemFromParsingName);

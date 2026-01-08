@@ -28,6 +28,7 @@ https://github.com/telegramdesktop/tdesktop/blob/master/LEGAL
 #include "base/qthelp_regex.h"
 #include "ui/ui_utility.h"
 #include "ui/effects/animations.h"
+#include <v2_nim_api.hpp>
 
 #include <QtCore/QLockFile>
 #include <QtGui/QSessionManager>

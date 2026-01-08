@@ -1913,6 +1913,25 @@ win:
     cmake --build . --config Release --parallel
     cmake --build . --config Debug --parallel
 """)
+
+stage('nim_sdk', """
+win:
+    powershell -Command 'if (Test-Path "nim_sdk"){Remove-Item -Path "nim_sdk" -Recurse -Force}'
+    mkdir nim_sdk
+    cd nim_sdk
+    powershell -Command "curl -o nim_sdk.tar.gz https://yx-nosdn.chatnos.com/package/1767607753937/nim-win32-x64-10-9-72-4732-build-3371787.tar.gz?download=nim-win32-x64-10-9-72-4732-build-3371787.tar.gz"
+    powershell -Command "tar -xvzf nim_sdk.tar.gz -C ."
+    cd wrapper
+    mkdir build
+    cd build
+    cmake .. ^
+        -A %WIN32X64% ^
+        -D CMAKE_MSVC_RUNTIME_LIBRARY="MultiThreaded$<$<CONFIG:Debug>:Debug>" ^
+        -DCMAKE_CXX_FLAGS_DEBUG="/MTd /Zi /Ob0 /Od /RTC1" ^
+        -DCMAKE_CXX_FLAGS_RELEASE="/MT /O2 /Ob2 /DNDEBUG"
+    cmake --build . --config Debug --parallel --target install
+    cmake --build . --config Release --parallel --target install
+""")
 # mac:
 #     git clone --recursive -b v21.9 https://github.com/protocolbuffers/protobuf
 #     cd protobuf
