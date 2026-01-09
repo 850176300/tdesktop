@@ -410,21 +410,22 @@ void SetupWindowTitleContent(
 		}, showTotalUnread->lifetime());
 	}
 
-	if (Ui::Platform::NativeWindowFrameSupported()) {
-		const auto nativeFrame = addCheckbox(
-			Platform::IsWayland()
-				? tr::lng_settings_qt_frame()
-				: tr::lng_settings_native_frame(),
-			Core::App().settings().nativeWindowFrame());
+	//not allow to change native frame
+	// if (Ui::Platform::NativeWindowFrameSupported()) {
+	// 	const auto nativeFrame = addCheckbox(
+	// 		Platform::IsWayland()
+	// 			? tr::lng_settings_qt_frame()
+	// 			: tr::lng_settings_native_frame(),
+	// 		Core::App().settings().nativeWindowFrame());
 
-		nativeFrame->checkedChanges(
-		) | rpl::filter([](bool checked) {
-			return (checked != Core::App().settings().nativeWindowFrame());
-		}) | rpl::on_next([=](bool checked) {
-			Core::App().settings().setNativeWindowFrame(checked);
-			Core::App().saveSettingsDelayed();
-		}, nativeFrame->lifetime());
-	}
+	// 	nativeFrame->checkedChanges(
+	// 	) | rpl::filter([](bool checked) {
+	// 		return (checked != Core::App().settings().nativeWindowFrame());
+	// 	}) | rpl::on_next([=](bool checked) {
+	// 		Core::App().settings().setNativeWindowFrame(checked);
+	// 		Core::App().saveSettingsDelayed();
+	// 	}, nativeFrame->lifetime());
+	// }
 }
 
 void SetupSystemIntegrationContent(

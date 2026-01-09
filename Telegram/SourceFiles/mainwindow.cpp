@@ -119,11 +119,13 @@ void MainWindow::initHook() {
 void MainWindow::setupWindowBorderless(bool borderless){
 	if (windowHandle()){
 		windowHandle()->setFlag(Qt::FramelessWindowHint, borderless);
+		setNativeFrame(true);
 	}else{
 		shownValue() | rpl::filter([=](bool shown) {
 			return shown && windowHandle();
 		}) | rpl::take(1) | rpl::on_next([=] {
 			windowHandle()->setFlag(Qt::FramelessWindowHint, borderless);
+			setNativeFrame(true);
 		}, lifetime());
 	}
 }
