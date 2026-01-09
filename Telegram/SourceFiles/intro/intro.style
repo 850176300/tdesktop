@@ -331,5 +331,18 @@ introAccountInputField: IntroInputField(defaultIntroInputField) {
 	errorIcon: accountError;
 }
 
+introInputHeightSkip: 20px;
+introCheckBoxHeightSkip: 20px;
+introLeftSkip:10px;
+introCheckboxLeftSkip: 8px;
 
+introCheckbox: Checkbox(defaultCheckbox){
+	textFg: windowBg;
+	textFgActive: windowBg;
+	width: -40px;
+	textPosition: point(12px, 1px);
+	checkPosition: point(8px, 8px);
+	style: boxTextStyle;
+}
 
+introLoginBottomOffset: 280px;

@@ -19,6 +19,7 @@ class MultiSelect;
 class IntroAccountInput;
 class IntroPasswordInput;
 class RpWidget;
+class Checkbox;
 
 } // namespace Ui
 
@@ -37,6 +38,7 @@ public:
 	rpl::producer<> nextButtonFocusRequests() const override;
 	void activate() override;
 	void setInnerFocus() override;
+	[[nodiscard]] int contentBottomOffset() const override;
 
 private:
 	void resizeEvent(QResizeEvent *e) override;
@@ -46,6 +48,8 @@ private:
 	object_ptr<Ui::FadeWrap<Ui::RpWidget>> _inputFieldWrap;
 	object_ptr<Ui::IntroAccountInput> _accountInput = nullptr;
 	object_ptr<Ui::IntroPasswordInput> _passwordInput = nullptr;
+	object_ptr<Ui::Checkbox> _rememberMeCheckbox = nullptr;
+	object_ptr<Ui::Checkbox> _rememberPasswordCheckbox = nullptr;
 };
 
 } // namespace details

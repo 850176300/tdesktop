@@ -96,6 +96,8 @@ public:
 	[[nodiscard]] int contentLeft() const;
 	[[nodiscard]] int contentTop() const;
 
+	[[nodiscard]] virtual int contentBottomOffset() const;
+
 	void setErrorCentered(bool centered);
 	void showError(rpl::producer<QString> text);
 	void hideError() {

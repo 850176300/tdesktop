@@ -16,6 +16,11 @@ namespace NimSdk{
 
         constexpr auto kMaxPathLong = 32767;
 
+
+        int max(int a, int b) {
+            return (a > b) ? a : b;
+        }
+        
         bool ResolveNimSdkDll() {
             static const auto loaded = [] {
                 auto exePath = std::array<WCHAR, kMaxPathLong + 1>{ { 0 } };

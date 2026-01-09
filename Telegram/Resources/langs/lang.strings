@@ -7440,4 +7440,10 @@ https://github.com/telegramdesktop/tdesktop/blob/master/LEGAL
 
 "lng_mac_hold_to_quit" = "Hold {text} to Quit";
 
+
+
+//login window
+"lng_login_remember_account" = "Remember Me";
+"lng_login_remember_password" = "Save Password";
+
 // Keys finished

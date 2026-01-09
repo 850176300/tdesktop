@@ -7427,4 +7427,8 @@ https://github.com/telegramdesktop/tdesktop/blob/master/LEGAL
 
 "lng_mac_hold_to_quit" = "按住 {text} 以退出";
 
+//login window
+"lng_login_remember_account" = "记住账号";
+"lng_login_remember_password" = "记住密码";
+
 // Keys finished

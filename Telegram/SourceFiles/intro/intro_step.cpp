@@ -309,8 +309,12 @@ int Step::contentLeft() const {
 	return (width() - st::introNextButton.width) / 2;
 }
 
+int Step::contentBottomOffset() const {
+	return st::introHeight;
+}
+
 int Step::contentTop() const {
-	auto result = (height() - st::introHeight) / 2;
+	auto result = (height() - contentBottomOffset()) / 2;
 	accumulate_max(result, st::introStepTopMin);
 	return result;
 }
