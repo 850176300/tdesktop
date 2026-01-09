@@ -339,10 +339,16 @@ introCheckboxLeftSkip: 8px;
 introCheckbox: Checkbox(defaultCheckbox){
 	textFg: windowBg;
 	textFgActive: windowBg;
-	width: -40px;
+	width: 0px;
 	textPosition: point(12px, 1px);
 	checkPosition: point(8px, 8px);
 	style: boxTextStyle;
+	margin: margins(0px, 8px, 0px, 8px);
 }
 
 introLoginBottomOffset: 280px;
+
+introRegisterButton:LinkButton(defaultLinkButton){
+	color: windowBg;
+	overColor: windowBgOver;
+}

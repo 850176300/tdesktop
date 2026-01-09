@@ -36,6 +36,7 @@ StartWidget::StartWidget(
 	not_null<Data*> data)
 : Step(parent, account, data)
 , _inputFieldWrap(this, object_ptr<Ui::RpWidget>(this)) 
+, _registerNowButton(this, object_ptr<Ui::LinkButton>(this, tr::lng_login_register_now(tr::now), st::introRegisterButton))
 , _accountInput(static_cast<QWidget*>(inputControls().get()), st::introAccountInputField, tr::lng_chat_intro_input_account())
 , _passwordInput(static_cast<QWidget*>(inputControls().get()), st::introPasswordInputField, tr::lng_chat_intro_input_password())
 , _rememberMeCheckbox(static_cast<QWidget*>(inputControls().get()), tr::lng_login_remember_account(), false, st::introCheckbox)

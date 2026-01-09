@@ -7445,5 +7445,5 @@ https://github.com/telegramdesktop/tdesktop/blob/master/LEGAL
 //login window
 "lng_login_remember_account" = "Remember Me";
 "lng_login_remember_password" = "Save Password";
-
+"lng_login_register_now" = "Register Now";
 // Keys finished

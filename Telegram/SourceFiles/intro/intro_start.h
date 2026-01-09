@@ -50,6 +50,7 @@ private:
 	object_ptr<Ui::IntroPasswordInput> _passwordInput = nullptr;
 	object_ptr<Ui::Checkbox> _rememberMeCheckbox = nullptr;
 	object_ptr<Ui::Checkbox> _rememberPasswordCheckbox = nullptr;
+	object_ptr<Ui::FadeWrap<Ui::LinkButton>> _registerNowButton = nullptr;
 };
 
 } // namespace details

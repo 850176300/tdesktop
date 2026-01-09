@@ -7430,5 +7430,6 @@ https://github.com/telegramdesktop/tdesktop/blob/master/LEGAL
 //login window
 "lng_login_remember_account" = "记住账号";
 "lng_login_remember_password" = "记住密码";
+"lng_login_register_now" = "现在注册"；
 
 // Keys finished
